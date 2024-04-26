@@ -1,0 +1,81 @@
+// Declare the package this Templ file belongs to, which helps in organizing and referencing templates within the Go application.
+package templates
+
+// Define a 'Login' template that takes a title string as a parameter. This template renders the HTML structure for a login page.
+templ Login(title string) {
+    // Container div with an attribute to enable HTMX extensions, specifically 'response-targets' for dynamic behavior.
+    <div hx-ext="response-targets">
+        // Heading element for the login form.
+        <h1>
+            Sign in to your account
+        </h1>
+        // Form element configured for HTMX requests. It specifies the server endpoint for login attempts,
+        // the event that triggers the form submission, and how to handle 401 Unauthorized responses.
+        <form
+            hx-post="/login"  
+            hx-trigger="submit" 
+            hx-target-401="#login-error" 
+        >
+            // Placeholder for displaying login error messages. Content will be dynamically inserted if a login attempt fails.
+            <div id="login-error"></div>
+            // Input field for the user's email address.
+            <div>
+                <label for="email">Your email</label>
+                <input
+				
+                    type="email" 
+                    name="email" 
+                    id="email" 
+                    placeholder="name@company.com" 
+                    required="" 
+                    autocomplete="email" 
+                />
+            </div>
+            // Input field for the user's password.
+            <div>
+                <label for="password">Password</label>
+				/*
+					type="password"  Hides the input text, suitable for passwords.
+                	name="password" The name attribute for form submission.
+                    id="password" Links the label to the input field.
+                    placeholder="••••••••" A placeholder that hints at a password.
+                    required="" Marks the field as required.
+                    autocomplete="current-password" Suggests autofilling with the current password.
+				*/
+                <input
+                    type="password" 
+                    name="password" 
+                    id="password" 
+                    placeholder="••••••••" 
+                    required="" 
+                    autocomplete="current-password" 
+                />
+            </div>
+            // Submit button for the form.
+            <button type="submit">
+                Sign in
+            </button>
+            // A link to the registration page for users who don't have an account yet.
+            <p>
+                Don’t have an account yet?
+                <a href="/register">Register</a>
+            </p>
+        </form>
+    </div>
+}
+
+// Define a 'LoginError' template for rendering an error message when login fails.
+templ LoginError() {
+    // Paragraph element containing the error message.
+    <p>Invalid email or password</p>
+}
+
+/*
+Key Concepts:
+    HTMX Integration: The login form is designed to work with HTMX, allowing for asynchronous form submissions. Attributes like hx-post, hx-trigger, and hx-target-401 are used to configure this behavior, providing a smooth user experience without full page reloads.
+    Accessibility and UX: The form includes labels associated with input fields using the for attribute, placeholders for guiding input, and autocomplete attributes for improving user experience and security.
+    Error Handling: The template includes a mechanism (hx-target-401) to display error messages within the form when authentication fails, enhancing immediate feedback to the user without navigating away from the form.
+    Separation of Concerns: By defining a separate LoginError template, this approach modularizes the error handling, making the templates easier to maintain and reuse.
+
+These templates showcase a modern approach to building interactive web forms with server-side Go code and client-side enhancements using HTMX.
+*/

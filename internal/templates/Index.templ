@@ -1,0 +1,48 @@
+// Define the package that this templ file belongs to. It should match the Go package where the generated code will be used.
+package templates
+
+// Define a template named 'Index' that takes an email address as a parameter.
+// This template is likely used to generate personalized content for authenticated users.
+templ Index(email string) {
+    // Begin the HTML content block.
+    <div>
+    // Dynamically insert the user's email into the welcome message using Templ's syntax.
+    // The curly braces {} indicate where dynamic content is inserted.
+    Welcome {email}
+    </div>
+    // End of the HTML content block.
+}
+
+// Define another template named 'GuestIndex' with no parameters.
+// This template is used to generate a generic welcome message for unauthenticated visitors.
+templ GuestIndex() {
+    // Begin the HTML content block.
+    <div>
+    // Static content welcoming a guest.
+    Welcome guest
+    </div>
+    // End of the HTML content block.
+}
+
+/*
+Key Concepts:
+    Templ Templating System: This file uses Templ, a templating system designed for Go applications, 
+	which allows embedding Go code directly within HTML templates. Templ templates are compiled into Go code, 
+	enabling type safety and compile-time checks for the dynamic parts of your web pages.
+
+    Dynamic vs. Static Content: The Index template demonstrates how to insert dynamic content 
+	(the user's email) into the HTML. In contrast, the GuestIndex template shows static content 
+	that doesn't change based on user input or state.
+
+    Usage: These templates could be used in a web application to render different HTML 
+	content based on whether the user is logged in. For instance, when a user accesses the 
+	homepage, the application could check if they are authenticated and use the Index template 
+	to render a personalized welcome message. Otherwise, it could fall back to the GuestIndex 
+	template for guests.
+
+    Flexibility: Templ provides a flexible way to manage your application's views. By separating 
+	the logic for authenticated and guest users into different templates, you maintain cleaner 
+	code and improve the application's maintainability.
+
+This .templ file illustrates a simple yet effective way to leverage Templ's capabilities for dynamic web content generation, based on user authentication status.
+*/

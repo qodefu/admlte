@@ -1,0 +1,25 @@
+/*
+This directive injects Tailwind's base styles into your CSS. These base 
+styles include modern-normalize to ensure browsers render all elements 
+more consistently and in line with modern standards. It's the foundational 
+layer that includes styles for standard elements like body, h1, h2, p, 
+etc., setting them up for a more consistent design across different 
+browsers.
+*/
+@tailwind base;
+/*
+This directive imports Tailwind's component classes into your stylesheet. 
+Components in Tailwind are predefined classes that apply a more complex 
+set of styles to elements, potentially composed of multiple utility 
+classes. For example, a button component might combine padding, background 
+color, text color, and border-radius utilities into a single reusable class.
+*/
+@tailwind components;
+/*
+this directive brings in Tailwind's utility classes, which are the core of 
+the framework. These utilities cover a wide range of CSS properties, 
+allowing for detailed styling directly in your HTML markup. They include 
+margins, padding, text colors, background colors, flexbox utilities, and 
+more, enabling a utility-first approach to styling.
+*/
+@tailwind utilities;

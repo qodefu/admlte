@@ -1,0 +1,83 @@
+// Specify the package that this Templ file is part of. It's common for all related templates to be part of the same package for easier management.
+package templates
+
+// Define a 'header' template that generates the <head> section of an HTML document.
+// It accepts a 'title' string to dynamically set the page title.
+templ header(title string) {
+    <head>
+        // Dynamically set the <title> element's content to the passed 'title' parameter.
+        <title>{ title }</title>
+        // Standard meta tags for character set and responsive design.
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        // Include scripts with a dynamic 'nonce' attribute for security (Content Security Policy).
+        <script src="static/script/htmx.min.js" nonce={ ctx.Value("htmxNonce").(string) }></script>
+        <script src="static/script/response-targets.js" nonce={ ctx.Value("responseTargetsNonse").(string) }></script>
+        // Link to a stylesheet, also with a dynamic 'nonce' attribute.
+        <link rel="stylesheet" href="static/css/style.css" nonce={ ctx.Value("twNonce").(string) }/>
+    </head>
+}
+
+// Define a 'footer' template that generates a simple footer element.
+templ footer() {
+    <footer class="bg-blue-600 p-4"></footer> // Uses Tailwind CSS for styling.
+}
+
+// Define a 'nav' template for the navigation bar, including links to various pages.
+/*
+  <nav class="bg-blue-600 p-4"> // Styling with Tailwind CSS.
+        // Navigation links with Tailwind CSS for styling.
+        <a class="text-gray-200" href="/">Home</a>
+        <a class="text-gray-200" href="/register">Register</a>
+        <a class="text-gray-200" href="/login">Login</a>
+        <a class="text-gray-200" href="/about">About</a>
+*/
+templ nav(){
+    <nav class="bg-blue-600 p-4">
+        <a class="text-gray-200" href="/">Home</a>
+        <a class="text-gray-200" href="/register">Register</a>
+        <a class="text-gray-200" href="/login">Login</a>
+        <a class="text-gray-200" href="/about">About</a>
+    </nav>
+}
+
+// Define a 'Layout' template that composes the page layout, including the header, nav, main content, and footer.
+// It accepts dynamic 'contents' to be injected into the main section and a 'title' for the page.
+/*
+	@header(title) Include the header template.
+    <body class="flex flex-col h-full"> Body with Tailwind CSS for a flex layout.
+    @nav() Include the nav template for navigation links.
+    <main class="flex-1"> Main content area styled to take up remaining space.
+        @contents Inject dynamic contents into the main area.
+	@footer() // Include the footer template.
+*/
+templ Layout(contents templ.Component, title string) {
+    @header(title) // Include the header template.
+    <body class="flex flex-col h-full">
+    @nav()
+    <main class="flex-1">
+        @contents
+    </main>
+    </body>
+    @footer()
+}
+
+/*
+Key Concepts:
+    Modularity: This layout file demonstrates how Templ allows for modular design by defining 
+	reusable components like headers, footers, and navigation bars that can be included in 
+	multiple templates.
+
+    Dynamic Content: The Layout template illustrates how dynamic content can be injected into a 
+	predefined layout, allowing for flexible page generation with varying content.
+
+    Content Security Policy (CSP): The use of nonce attributes in <script> and <link> tags 
+	shows how Templ can support CSP by inserting dynamically generated nonce values for inline 
+	scripts and stylesheets, enhancing security.
+
+    Tailwind CSS: The templates use Tailwind CSS classes for styling, showcasing how Templ 
+	integrates with modern CSS frameworks to create visually appealing layouts with minimal 
+	custom CSS.
+
+This layout structure is typical for web applications that require a consistent look and feel across different pages, with the flexibility to inject different content as needed.
+*/

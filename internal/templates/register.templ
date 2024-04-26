@@ -1,0 +1,55 @@
+// The file is part of the 'templates' package, indicating it's used for rendering HTML content in your application.
+package templates
+
+// 'RegisterPage' template generates the HTML for a user registration form.
+// This form allows new users to create an account by providing their email and password.
+templ RegisterPage() {
+    // The form uses HTMX (indicated by hx-* attributes) for asynchronous submission,
+    // enhancing the user experience by not requiring a full page reload.
+    <div hx-ext="response-targets">
+        <h1>
+            Register an account
+        </h1>
+        <form
+            hx-post="/register" 
+            hx-trigger="submit" 
+            hx-target-401="#register-error" 
+        >
+            // Placeholder for displaying registration error messages.
+            <div id="register-error"></div>
+            <div>
+                <label for="email">Your email</label>
+                <input type="email" name="email" id="email" placeholder="name@company.com" required=""/>
+            </div>
+            <div>
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password" placeholder="••••••••" required=""/>
+            </div>
+            <button type="submit">
+                Register
+            </button>
+            <p>
+                Already have an account?
+                <a href="/login">Login</a>
+            </p>
+        </form>
+    </div>
+}
+
+// 'RegisterSucces' (note the typo in 'Success') template provides feedback to the user after a successful registration.
+// It includes a message and a link to the login page, allowing the user to proceed to sign in with their new account.
+templ RegisterSucces() {
+    <h1>Registration successful</h1>
+    <p>Go to <a href="login">login</a></p>
+}
+
+/*
+Key Points:
+    HTMX Integration: The registration form leverages HTMX for dynamic, asynchronous interactions. This allows for a smoother user experience by submitting the form data and handling responses without reloading the page.
+    Form Design: The form includes input fields for the user's email and password, each marked as required. This ensures that the form cannot be submitted unless both fields are filled out. The placeholders provide hints to the user about the expected values.
+    Error Handling: A designated area (<div id="register-error"></div>) is included to display any error messages that might arise during the registration process, such as when the email is already in use or doesn't meet validation criteria.
+    Navigation Link: After successful registration, users are encouraged to log in through a direct link to the login page. This guides users through the next step in accessing their new account.
+    Accessibility and UX: The form uses <label> elements associated with each input field via the for attribute, improving accessibility. Placeholders in the input fields provide additional guidance to users.
+
+This register.templ file illustrates a clean and user-friendly approach to handling user registration in a web application, with thoughtful considerations for error handling, user guidance, and integration with modern web technologies like HTMX.
+*/
