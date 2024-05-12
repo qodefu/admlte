@@ -101,7 +101,7 @@ func main() {
 				// validation pass, create user, return empty form
 				if validator.ValidationOk(&validations) {
 					userStore.CreateUser(nameVal, emailVal, pwdVal)
-					w.Header().Set("HX-Trigger", "close-global-modal-form")
+					w.Header().Set("HX-Trigger", `{"close-global-modal-form": [{"foo": 1, "message": "User Added", "tags": "Success!"}]}`)
 				}
 				templates.UserForm(validations).Render(r.Context(), w)
 			})

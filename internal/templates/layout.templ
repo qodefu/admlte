@@ -8,7 +8,6 @@ var asset = "/static/backend/"
 // Define a 'header' template that generates the <head> section of an HTML document.
 // It accepts a 'title' string to dynamically set the page title.
 templ header(title string) {
-
 }
 
 // Define a 'footer' template that generates a simple footer element.
@@ -260,14 +259,15 @@ scratch. This page gets rid of all links and provides the needed markup only.
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<meta http-equiv="x-ua-compatible" content="ie=edge"/>
 			<title>AdminLTE 3 | Starter</title>
-			<script src="/static/script/htmx.min.js" ></script>
-			<script src="/static/script/response-targets.js" ></script>
+			<script src="/static/script/htmx.min.js"></script>
+			<script src="/static/script/response-targets.js"></script>
 			<!-- Font Awesome Icons -->
 			<link rel="stylesheet" href={ asset + "plugins/fontawesome-free/css/all.min.css" }/>
 			<!-- Theme style -->
 			<link rel="stylesheet" href={ asset + "dist/css/adminlte.min.css" }/>
 			<!-- Google Font: Source Sans Pro -->
 			<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet"/>
+			<link rel="stylesheet" href={ asset + "plugins/toastr/toastr.min.css" }/>
 		</head>
 		<body class="hold-transition sidebar-mini">
 			<div class="wrapper">
@@ -301,6 +301,62 @@ scratch. This page gets rid of all links and provides the needed markup only.
 			<script src={ asset + "plugins/bootstrap/js/bootstrap.bundle.min.js" }></script>
 			<!-- AdminLTE App -->
 			<script src={ asset + "dist/js/adminlte.min.js" }></script>
+			<script src={ asset + "plugins/toastr/toastr.min.js" }></script>
+			<script defer>
+			$(document).ready(function() {
+				toastr.options = {
+				  "progressBar": true,
+				  "positionClass": "toast-bottom-right",
+				//   "closeButton": false,
+				//   "debug": false,
+				//   "newestOnTop": false,
+				//   "preventDuplicates": false,
+				//   "onclick": null,
+				//   "showDuration": "300",
+				//   "hideDuration": "1000",
+				//   "timeOut": "5000",
+				//   "extendedTimeOut": "1000",
+				//   "showEasing": "swing",
+				//   "hideEasing": "linear",
+				//   "showMethod": "fadeIn",
+				//   "hideMethod": "fadeOut"
+				}
+				$(document).on('show-global-modal-form', event => {
+				  $('#globalModalForm').modal('show');
+				})
+				
+				// .on('close-global-modal-form', event => {
+				//   $('#globalModalForm').modal('hide');
+				//    alert(console.dir(event.detail.value))
+				//   toastr.success("User added", "Success!")
+				//   htmx.ajax(
+   	     		//   'GET',
+   	     		//   '/admin/users/hx/list', {
+   	     		//     target: '#user-table',
+   	     	  	//   });
+				// })
+				htmx.on('close-global-modal-form', event => {
+					msg = event.detail.value[0]
+				  	$('#globalModalForm').modal('hide');
+					console.log(msg)
+				  	toastr.success(msg.message + msg.foo, msg.tags)
+				  	htmx.ajax(
+					'GET',
+					'/admin/users/hx/list', {
+					  target: '#user-table',
+					});
+
+				} )
+				$('#globalModalForm').on('hidden.bs.modal', function (e) {
+					$target = $(e.target)
+					$target.find('input')	
+						.val('')
+						.end()
+				})
+
+			})
+
+			</script>
 		</body>
 	</html>
 }
