@@ -34,11 +34,12 @@ func NewPostRegisterHandler(params PostRegisterHandlerParams) *PostRegisterHandl
 // enabling it to respond to registration HTTP requests.
 func (h *PostRegisterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Extracting email and password from the registration form.
+	name := r.FormValue("name")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
 	// Attempting to create a new user with the provided email and password.
-	err := h.userStore.CreateUser(email, password)
+	err := h.userStore.CreateUser(name, email, password)
 
 	// If there is an error during user creation (e.g., user already exists), respond with an error.
 	if err != nil {

@@ -7,8 +7,10 @@ import (
 	"context"      // For modifying request context.
 	"crypto/rand"  // For generating cryptographically secure random strings.
 	"encoding/hex" // For encoding binary data into hexadecimal.
-	"fmt"          // For formatting strings.
-	"net/http"     // For handling HTTP requests and responses.
+
+	// For formatting strings.
+
+	"net/http" // For handling HTTP requests and responses.
 )
 
 // generateRandomString creates a random string of a specified length.
@@ -34,18 +36,18 @@ func CSPMiddleware(next http.Handler) http.Handler {
 	// Note: This approach of generating nonces and setting them in context at middleware initialization
 	// will result in the same nonce values for all requests, which is not secure.
 	// Nonces should be unique per request. This code should be adjusted to generate nonces per request.
-	ctx := context.WithValue(context.Background(), "htmxNonce", htmxNonce)
-	ctx = context.WithValue(ctx, "twNonce", twNonce)
-	ctx = context.WithValue(ctx, "responseTargetsNonse", responseTargetsNonse)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Define the CSP header value, including the generated nonces and a hash for HTMX's injected CSS.
-		htmxCSSHash := "sha256-pgn1TCGZX6O77zDvy0oTODMOxemn0oj0LeCnQTRj7Kg="
-		cspHeader := fmt.Sprintf("default-src 'self'; script-src 'nonce-%s' 'nonce-%s'; style-src 'nonce-%s' '%s';", htmxNonce, responseTargetsNonse, twNonce, htmxCSSHash)
+		// htmxCSSHash := "sha256-pgn1TCGZX6O77zDvy0oTODMOxemn0oj0LeCnQTRj7Kg="
+		// cspHeader := fmt.Sprintf("default-src 'self'; script-src 'nonce-%s' 'nonce-%s'; style-src 'nonce-%s' '%s';", htmxNonce, responseTargetsNonse, twNonce, htmxCSSHash)
 
-		// Set the CSP header on the response.
-		w.Header().Set("Content-Security-Policy", cspHeader)
+		// // Set the CSP header on the response.
+		// w.Header().Set("Content-Security-Policy", cspHeader)
 
+		ctx := context.WithValue(r.Context(), "htmxNonce", htmxNonce)
+		ctx = context.WithValue(ctx, "twNonce", twNonce)
+		ctx = context.WithValue(ctx, "responseTargetsNonse", responseTargetsNonse)
 		// Proceed with the next handler in the chain, passing along the modified request context.
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
@@ -59,5 +61,18 @@ func TextHTMLMiddleware(next http.Handler) http.Handler {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		// Proceed with the next handler in the chain.
 		next.ServeHTTP(w, r)
+	})
+}
+
+type RKEY int
+
+const (
+	REQ_SCOPE RKEY = iota
+)
+
+func UtilMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctxt := context.WithValue(r.Context(), REQ_SCOPE, NewRequestScope(r))
+		next.ServeHTTP(w, r.WithContext(ctxt))
 	})
 }

@@ -31,7 +31,7 @@ func NewUserStore() *UserStore {
 
 // CreateUser attempts to add a new user to the store.
 // It checks for existing users with the same email to avoid duplicates and returns an error if found.
-func (s *UserStore) CreateUser(email string, password string) error {
+func (s *UserStore) CreateUser(name, email string, password string) error {
 	for _, user := range s.users {
 		if user.Email == email {
 			// Preventing duplicate user registration.
@@ -40,7 +40,7 @@ func (s *UserStore) CreateUser(email string, password string) error {
 	}
 
 	// Appending the new user to the users slice if no duplicate is found.
-	s.users = append(s.users, store.User{Email: email, Password: password})
+	s.users = append(s.users, store.User{Name: name, Email: email, Password: password})
 	return nil
 }
 
@@ -56,4 +56,8 @@ func (s *UserStore) GetUser(email string) (*store.User, error) {
 
 	// If the loop completes without finding a user, return an error indicating this.
 	return nil, errors.New("user not found")
+}
+
+func (s *UserStore) ListUsers() []store.User {
+	return s.users[:]
 }
