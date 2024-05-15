@@ -13,7 +13,7 @@ type UserValidations struct {
 }
 
 templ UserForm(uvs UserValidations, edit bool) {
-	<form hx-post={ m.If(edit, "/admin/users/hx/edit", "/admin/users/hx/addNew") }>
+	<form hx-post={ m.If(edit, "/admin/users/hx/updateUser", "/admin/users/hx/createUser") }>
 		<div class="modal-body">
 			<div class="form-group">
 				<label for={ uvs.Name.Key + "_id" }>Name </label>
@@ -99,7 +99,7 @@ templ UserTable(users []store.User) {
 						<a href="#" hx-get={fmt.Sprintf("/admin/users/hx/editUserModal/%s", user.Email)} hx-target="#globalModalContent">
 							<i class="fa fa-edit mr-2"></i>
 						</a>
-						<a href="">
+						<a href="#" hx-delete={fmt.Sprintf("/admin/users/hx/deleteUserModal/%s", user.Email)} hx-target="#globalModalContent">
 							<i class="fa fa-trash text-danger mr-2"></i>
 						</a>
 					</td>
@@ -112,13 +112,32 @@ templ UserTable(users []store.User) {
 templ modalHeader(edit bool) {
 	<div class="modal-header">
 		if edit {
-			<h5 class="modal-title" id="exampleModalLabel">Edit New User</h5>
+			<h5 class="modal-title" id="exampleModalLabel">Edit User</h5>
 		} else {
 			<h5 class="modal-title" id="exampleModalLabel">Add New User</h5>
 		}
 		<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 			<span aria-hidden="true">&times;</span>
 		</button>
+	</div>
+}
+
+templ DeleteModalContent(email string) {
+	<div class="modal-content" id="globalModalContent">
+		<div class="modal-header">
+			<h5 class="modal-title" id="exampleModalLabel">Delete User</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+		<div class="modal-body">
+			<h4>Are you sure you want to delte?</h4>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+			<button type="submit" class="btn btn-danger" hx-delete={fmt.Sprintf("/admin/users/hx/deleteUser/%s", email)}><i class="fa fa-trash mr-2"></i>Delete User</button>
+		</div>
+	
 	</div>
 }
 

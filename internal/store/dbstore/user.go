@@ -5,7 +5,8 @@ package dbstore
 // "errors" for handling error conditions,
 // "goth/internal/store" presumably contains shared types or interfaces, including the User struct definition.
 import (
-	"errors"              // Standard package for creating error objects.
+	"errors" // Standard package for creating error objects.
+	"fmt"
 	"goth/internal/store" // Internal package where the User struct is defined.
 )
 
@@ -28,6 +29,32 @@ func NewUserStore() *UserStore {
 			},
 		},
 	}
+}
+
+func (s *UserStore) UpdateUser(name, email string, password string) error {
+	for i, user := range s.users {
+		if user.Email == email {
+			fmt.Println("updated")
+			s.users[i].Name = name
+			s.users[i].Password = password
+			return nil
+		}
+	}
+
+	// Appending the new user to the users slice if no duplicate is found.
+	return errors.New("user not exists")
+}
+
+func (s *UserStore) DeleteUser(email string) error {
+	for i, user := range s.users {
+		if user.Email == email {
+			s.users = append(s.users[:i], s.users[i+1:]...)
+			return nil
+		}
+	}
+
+	// Appending the new user to the users slice if no duplicate is found.
+	return errors.New("user not exists")
 }
 
 // CreateUser attempts to add a new user to the store.

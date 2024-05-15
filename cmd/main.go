@@ -78,8 +78,10 @@ func main() {
 				})
 				r.Get("/hx/addUserModal", listUsersHandler.HxAddUserModal)
 				r.Get("/hx/editUserModal/{email}", listUsersHandler.HxEditUserModal)
+				r.Delete("/hx/deleteUserModal/{email}", listUsersHandler.HxDeleteUserModal)
 				r.Post("/hx/createUser", listUsersHandler.HxCreateUser)
 				r.Post("/hx/updateUser", listUsersHandler.HxUpdateUser)
+				r.Delete("/hx/deleteUser/{email}", listUsersHandler.HxDeleteUser)
 				r.Get("/hx/list", listUsersHandler.HxListUsers)
 			})
 
