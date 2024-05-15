@@ -9,9 +9,6 @@ import (
 	"goth/internal/handlers"       // Handlers for HTTP routes.
 	"goth/internal/store/dbstore"  // Data store for user information.
 	"goth/internal/templates"
-	"goth/internal/validator"
-	v "goth/internal/validator"
-	"io"
 	"log/slog" // Structured logging.
 	"net/http"
 	"os"        // Access to operating system functionality like signals and stdout.
@@ -72,45 +69,20 @@ func main() {
 				// id := chi.URLParam(r, "id")
 				templates.Layout(templates.DashContent(), "Smart 1").Render(r.Context(), w)
 			})
-			r.Get("/users", func(w http.ResponseWriter, r *http.Request) {
-				// id := chi.URLParam(r, "id")
-				users := userStore.ListUsers()
-				templates.Layout(templates.UserContent(users), "Smart 1").Render(r.Context(), w)
-			})
-			r.Get("/users/hx/launchModal", func(w http.ResponseWriter, r *http.Request) {
-				// id := chi.URLParam(r, "id")
-				w.Header().Set("HX-Trigger", "show-global-modal-form")
-				io.WriteString(w, "Click!!!")
-			})
-			r.Post("/users/hx/addNew", func(w http.ResponseWriter, r *http.Request) {
-				// first validate
-				// validate fail, return form with error
-				nameVal := r.FormValue("name")
-				emailVal := r.FormValue("email")
-				pwdVal := r.FormValue("password")
-				pwdConfirm := r.FormValue("passwordConfirmation")
 
-				validations := templates.UserValidations{
-					Name:                 v.New("name", nameVal, v.NotEmpty("Name")),
-					Email:                v.New("email", emailVal, v.NotEmpty("Email"), v.EmailFmt),
-					Password:             v.New("password", pwdVal, v.NotEmpty("Password")),
-					PasswordConfirmation: v.New("passwordConfirmation", pwdConfirm, v.NotEmpty("PasswordConfirmation"), v.PasswordMatch(pwdVal)),
-				}
-				validator.ValidateFields(&validations)
-
-				// validation pass, create user, return empty form
-				if validator.ValidationOk(&validations) {
-					userStore.CreateUser(nameVal, emailVal, pwdVal)
-					w.Header().Set("HX-Trigger", `{"close-global-modal-form": [{"foo": 1, "message": "User Added", "tags": "Success!"}]}`)
-				}
-				templates.UserForm(validations).Render(r.Context(), w)
+			listUsersHandler := handlers.NewListUsersHandler(userStore)
+			r.Route("/users", func(r chi.Router) {
+				r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+					users := userStore.ListUsers()
+					templates.Layout(templates.UserContent(users), "Smart 1").Render(r.Context(), w)
+				})
+				r.Get("/hx/addUserModal", listUsersHandler.HxAddUserModal)
+				r.Get("/hx/editUserModal/{email}", listUsersHandler.HxEditUserModal)
+				r.Post("/hx/createUser", listUsersHandler.HxCreateUser)
+				r.Post("/hx/updateUser", listUsersHandler.HxUpdateUser)
+				r.Get("/hx/list", listUsersHandler.HxListUsers)
 			})
-			r.Get("/users/hx/list", func(w http.ResponseWriter, r *http.Request) {
-				users := userStore.ListUsers()
 
-				templates.UserTable(users).Render(r.Context(), w)
-
-			})
 		})
 		r.Get("/about", handlers.NewAboutHandler().ServeHTTP)
 

@@ -22,6 +22,7 @@ func NewUserStore() *UserStore {
 		users: []store.User{
 			// Initializing with a default user.
 			{
+				Name:     "one",
 				Email:    "1@example.com",
 				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
 			},

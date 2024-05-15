@@ -3,6 +3,7 @@ package templates
 import m "goth/internal/middleware"
 import v "goth/internal/validator"
 import "goth/internal/store"
+import "fmt"
 
 type UserValidations struct {
 	Name                 v.Validation
@@ -11,8 +12,8 @@ type UserValidations struct {
 	PasswordConfirmation v.Validation
 }
 
-templ UserForm(uvs UserValidations) {
-	<form hx-post="/admin/users/hx/addNew">
+templ UserForm(uvs UserValidations, edit bool) {
+	<form hx-post={ m.If(edit, "/admin/users/hx/edit", "/admin/users/hx/addNew") }>
 		<div class="modal-body">
 			<div class="form-group">
 				<label for={ uvs.Name.Key + "_id" }>Name </label>
@@ -68,8 +69,12 @@ templ UserForm(uvs UserValidations) {
 			</div>
 		</div>
 		<div class="modal-footer">
-			<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-			<button type="submit" class="btn btn-primary">Save </button>
+			<button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+			if edit {
+				<button type="submit" class="btn btn-primary"><i class="fa fa-save mr-2"></i>Save Changes</button>
+			} else {
+				<button type="submit" class="btn btn-primary"><i class="fa fa-save mr-2"></i>Save</button>
+			}
 		</div>
 	</form>
 }
@@ -85,13 +90,13 @@ templ UserTable(users []store.User) {
 			</tr>
 		</thead>
 		<tbody>
-			for _,user := range users {
+			for i,user := range users {
 				<tr>
-					<th scope="row">1</th>
+					<th scope="row">{ fmt.Sprintf("%d", i) }</th>
 					<td>{ user.Name }</td>
 					<td>{ user.Email }</td>
 					<td>
-						<a href="">
+						<a href="#" hx-get={fmt.Sprintf("/admin/users/hx/editUserModal/%s", user.Email)} hx-target="#globalModalContent">
 							<i class="fa fa-edit mr-2"></i>
 						</a>
 						<a href="">
@@ -102,6 +107,26 @@ templ UserTable(users []store.User) {
 			}
 		</tbody>
 	</table>
+}
+
+templ modalHeader(edit bool) {
+	<div class="modal-header">
+		if edit {
+			<h5 class="modal-title" id="exampleModalLabel">Edit New User</h5>
+		} else {
+			<h5 class="modal-title" id="exampleModalLabel">Add New User</h5>
+		}
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+}
+
+templ UserModalContent(uv UserValidations, edit bool) {
+	<div class="modal-content" id="globalModalContent">
+		@modalHeader(edit)
+		@UserForm(uv, edit)
+	</div>
 }
 
 templ UserContent(users []store.User) {
@@ -135,8 +160,8 @@ templ UserContent(users []store.User) {
 							<button
 								type="button"
 								class="primary btn-primary"
-								hx-swap="none"
-								hx-get="/admin/users/hx/launchModal"
+								hx-target="#globalModalContent"
+								hx-get="/admin/users/hx/addUserModal"
 							>
 								<i class="fa fa-plus-circle mr-1"></i>Add New User
 							</button>
@@ -156,20 +181,7 @@ templ UserContent(users []store.User) {
 	<!-- Modal -->
 	<div class="modal fade" id="globalModalForm" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">Add New User</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				@UserForm(UserValidations{
-					v.New("name", "", nil),
-					v.New("email", "", nil),
-					v.New("password", "", nil),
-					v.New("passwordConfirmation", "", nil),
-				})
-			</div>
+			<div class="modal-content" id="globalModalContent"></div>
 		</div>
 	</div>
 }

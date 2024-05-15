@@ -185,7 +185,7 @@ templ sidebar() {
 					</li>
 					<li class="nav-item">
 						<a href="/admin/appts" class={ "nav-link", m.If(m.ReqScope(ctx).IsUrl("/admin/appts"),"active", "") }>
-							<i class="nav-icon fas fa-tachometer-alt"></i>
+							<i class="nav-icon fas "></i>
 							<p>
 								Appointments
 							</p>
@@ -193,7 +193,7 @@ templ sidebar() {
 					</li>
 					<li class="nav-item">
 						<a href="/admin/users" class={ "nav-link", m.If(m.ReqScope(ctx).IsUrl("/admin/users"),"active", "") }>
-							<i class="nav-icon fas fa-tachometer-alt"></i>
+							<i class="nav-icon fas fa-users"></i>
 							<p>
 								Users
 								<span class="right badge badge-danger">New</span>
@@ -202,7 +202,7 @@ templ sidebar() {
 					</li>
 					<li class="nav-item">
 						<a href="/admin/settings" class={ "nav-link", m.If(m.ReqScope(ctx).IsUrl("/admin/settings"),"active", "") }>
-							<i class="nav-icon fas fa-tachometer-alt"></i>
+							<i class="nav-icon fas fa-cog"></i>
 							<p>
 								Settings
 							</p>
