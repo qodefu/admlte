@@ -63,15 +63,15 @@ templ UserTableMain(paginator store.Pagination[store.User]) {
 			<nav aria-label="...">
 				<ul class="pagination">
 					<li class="page-item ">
-						<a class="page-link" hx-target="#userTableMain" hx-get={ paginator.PreviousPageUrl() } tabindex="-1" aria-disabled="true">{ "<" }</a>
+						<a class="page-link" hx-swap="outerHTML" hx-target="#userTableMain" hx-get={ paginator.PreviousPageUrl() } tabindex="-1" aria-disabled="true">{ "<" }</a>
 					</li>
 					for _,i := range paginator.Pages() {
 						if paginator.CurrentPage() == i {
 							<li class="page-item active" aria-current="page">
-								<a class="page-link" hx-target="#userTableMain" hx-get={ paginator.PageUrl(i) }>{ strconv.Itoa(i) } <span class="sr-only">(current)</span></a>
+								<a class="page-link" hx-swap="outerHTML" hx-target="#userTableMain" hx-get={ paginator.PageUrl(i) }>{ strconv.Itoa(i) } <span class="sr-only">(current)</span></a>
 							</li>
 						} else {
-							<li class="page-item "><a class="page-link" hx-target="#userTableMain" hx-get={ paginator.PageUrl(i) }>{ strconv.Itoa(i) }</a></li>
+							<li class="page-item "><a class="page-link" hx-swap="outerHTML" hx-target="#userTableMain" hx-get={ paginator.PageUrl(i) }>{ strconv.Itoa(i) }</a></li>
 						}
 					}
 					// <li class="page-item "><a class="page-link" href="#">1</a></li>
@@ -80,7 +80,7 @@ templ UserTableMain(paginator store.Pagination[store.User]) {
 					// </li>
 					// <li class="page-item"><a class="page-link" href="#">3</a></li>
 					<li class="page-item ">
-						<a class="page-link" hx-target="#userTableMain" hx-get={ paginator.NextPageUrl() } aria-disabled="true">{ ">" }</a>
+						<a class="page-link" hx-swap="outerHTML" hx-target="#userTableMain" hx-get={ paginator.NextPageUrl() } aria-disabled="true">{ ">" }</a>
 					</li>
 				</ul>
 			</nav>
@@ -206,6 +206,16 @@ templ UserForm(uvs UserValidations, edit bool) {
 			}
 		</div>
 	</form>
+	<script>
+		htmx.on('close-global-modal-form', event => {
+		  	htmx.ajax(
+			'GET',
+			'/admin/users/hx/list?page=1', {
+			  target: '#userTableMain',
+			  swap:'outerHTML'
+			});
+		})
+	</script>
 }
 
 templ UserTable(paginator store.Pagination[store.User]) {

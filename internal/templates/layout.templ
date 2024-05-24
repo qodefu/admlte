@@ -340,11 +340,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
 				  	$('#globalModalForm').modal('hide');
 					console.log(msg)
 				  	toastr.success(msg.message + msg.foo, msg.tags)
-				  	htmx.ajax(
-					'GET',
-					'/admin/users/hx/list', {
-					  target: '#user-table',
-					});
+				  	// htmx.ajax(
+					// 'GET',
+					// '/admin/users/hx/list', {
+					//   target: '#user-table',
+					// });
 
 				} )
 				$('#globalModalForm').on('hidden.bs.modal', function (e) {

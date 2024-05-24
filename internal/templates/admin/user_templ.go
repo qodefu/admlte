@@ -176,7 +176,7 @@ func UserTableMain(paginator store.Pagination[store.User]) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(paginator.PreviousPageUrl())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 66, Col: 90}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 66, Col: 110}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -189,7 +189,7 @@ func UserTableMain(paginator store.Pagination[store.User]) templ.Component {
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs("<")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 66, Col: 133}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 66, Col: 153}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -208,7 +208,7 @@ func UserTableMain(paginator store.Pagination[store.User]) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(paginator.PageUrl(i))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 71, Col: 85}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 71, Col: 105}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -221,7 +221,7 @@ func UserTableMain(paginator store.Pagination[store.User]) templ.Component {
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(i))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 71, Col: 105}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 71, Col: 125}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -239,7 +239,7 @@ func UserTableMain(paginator store.Pagination[store.User]) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(paginator.PageUrl(i))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 74, Col: 107}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 74, Col: 127}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -252,7 +252,7 @@ func UserTableMain(paginator store.Pagination[store.User]) templ.Component {
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(i))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 74, Col: 127}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 74, Col: 147}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -271,7 +271,7 @@ func UserTableMain(paginator store.Pagination[store.User]) templ.Component {
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(paginator.NextPageUrl())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 83, Col: 86}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 83, Col: 106}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -284,7 +284,7 @@ func UserTableMain(paginator store.Pagination[store.User]) templ.Component {
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(">")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 83, Col: 115}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 83, Col: 135}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
@@ -758,7 +758,7 @@ func UserTable(paginator store.Pagination[store.User]) templ.Component {
 			var templ_7745c5c3_Var47 string
 			templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", i))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 224, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 234, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 			if templ_7745c5c3_Err != nil {
@@ -771,7 +771,7 @@ func UserTable(paginator store.Pagination[store.User]) templ.Component {
 			var templ_7745c5c3_Var48 string
 			templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(user.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 225, Col: 20}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 235, Col: 20}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 			if templ_7745c5c3_Err != nil {
@@ -784,7 +784,7 @@ func UserTable(paginator store.Pagination[store.User]) templ.Component {
 			var templ_7745c5c3_Var49 string
 			templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(user.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 226, Col: 21}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 236, Col: 21}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
 			if templ_7745c5c3_Err != nil {
@@ -797,7 +797,7 @@ func UserTable(paginator store.Pagination[store.User]) templ.Component {
 			var templ_7745c5c3_Var50 string
 			templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/users/hx/editUserModal/%s", user.Email))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 228, Col: 86}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 238, Col: 86}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
 			if templ_7745c5c3_Err != nil {
@@ -810,7 +810,7 @@ func UserTable(paginator store.Pagination[store.User]) templ.Component {
 			var templ_7745c5c3_Var51 string
 			templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/users/hx/deleteUserModal/%s", user.Email))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 231, Col: 91}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 241, Col: 91}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 			if templ_7745c5c3_Err != nil {
