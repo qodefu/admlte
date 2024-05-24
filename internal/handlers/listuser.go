@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"goth/internal/store"
 	"goth/internal/store/dbstore"
-	"goth/internal/templates"
+	"goth/internal/templates/admin"
 	"goth/internal/validator"
 	v "goth/internal/validator"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -23,13 +25,13 @@ func (thing *ListUsers) HxAddUserModal(w http.ResponseWriter, r *http.Request) {
 	// id := chi.URLParam(r, "id")
 
 	w.Header().Set("HX-Trigger", "show-global-modal-form")
-	uv := templates.UserValidations{
+	uv := admin.UserValidations{
 		v.New("name", "", nil),
 		v.New("email", "", nil),
 		v.New("password", "", nil),
 		v.New("passwordConfirmation", "", nil),
 	}
-	templates.UserModalContent(uv, false).Render(r.Context(), w)
+	admin.UserModalContent(uv, false).Render(r.Context(), w)
 
 }
 
@@ -37,7 +39,7 @@ func (thing *ListUsers) HxEditUserModal(w http.ResponseWriter, r *http.Request) 
 	email := chi.URLParam(r, "email")
 	user, _ := thing.userStore.GetUser(email)
 
-	uv := templates.UserValidations{
+	uv := admin.UserValidations{
 		v.New("name", user.Name, nil),
 		v.New("email", user.Email, nil),
 		v.New("password", "", nil),
@@ -45,14 +47,14 @@ func (thing *ListUsers) HxEditUserModal(w http.ResponseWriter, r *http.Request) 
 	}
 
 	w.Header().Set("HX-Trigger", "show-global-modal-form")
-	templates.UserModalContent(uv, true).Render(r.Context(), w)
+	admin.UserModalContent(uv, true).Render(r.Context(), w)
 }
 
 func (thing *ListUsers) HxDeleteUserModal(w http.ResponseWriter, r *http.Request) {
 	email := chi.URLParam(r, "email")
 
 	w.Header().Set("HX-Trigger", "show-global-modal-form")
-	templates.DeleteModalContent(email).Render(r.Context(), w)
+	admin.DeleteModalContent(email).Render(r.Context(), w)
 }
 
 func (thing *ListUsers) HxCreateUser(w http.ResponseWriter, r *http.Request) {
@@ -63,7 +65,7 @@ func (thing *ListUsers) HxCreateUser(w http.ResponseWriter, r *http.Request) {
 	pwdVal := r.FormValue("password")
 	pwdConfirm := r.FormValue("passwordConfirmation")
 
-	validations := templates.UserValidations{
+	validations := admin.UserValidations{
 		Name:                 v.New("name", nameVal, v.NotEmpty("Name")),
 		Email:                v.New("email", emailVal, v.NotEmpty("Email"), v.EmailFmt),
 		Password:             v.New("password", pwdVal, v.NotEmpty("Password")),
@@ -77,7 +79,7 @@ func (thing *ListUsers) HxCreateUser(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("HX-Trigger", `{"close-global-modal-form": [{"foo": 1, "message": "User Added", "tags": "Success!"}]}`)
 	}
 
-	templates.UserForm(validations, false).Render(r.Context(), w)
+	admin.UserForm(validations, false).Render(r.Context(), w)
 }
 
 func (thing *ListUsers) existingUser(val string) v.VResult {
@@ -98,7 +100,7 @@ func (thing *ListUsers) HxUpdateUser(w http.ResponseWriter, r *http.Request) {
 	pwdVal := r.FormValue("password")
 	pwdConfirm := r.FormValue("passwordConfirmation")
 
-	validations := templates.UserValidations{
+	validations := admin.UserValidations{
 		Name:                 v.New("name", nameVal, v.NotEmpty("Name")),
 		Email:                v.New("email", emailVal, v.NotEmpty("Email"), v.EmailFmt, thing.existingUser),
 		Password:             v.New("password", pwdVal),
@@ -112,7 +114,7 @@ func (thing *ListUsers) HxUpdateUser(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("HX-Trigger", `{"close-global-modal-form": [{"foo": 1, "message": "User `+emailVal+` Edited and saved", "tags": "Success!"}]}`)
 	}
 
-	templates.UserForm(validations, true).Render(r.Context(), w)
+	admin.UserForm(validations, true).Render(r.Context(), w)
 }
 
 func (thing *ListUsers) HxDeleteUser(w http.ResponseWriter, r *http.Request) {
@@ -123,6 +125,11 @@ func (thing *ListUsers) HxDeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (thing *ListUsers) HxListUsers(w http.ResponseWriter, r *http.Request) {
-	users := thing.userStore.ListUsers()
-	templates.UserTable(users).Render(r.Context(), w)
+	page := r.URL.Query().Get("page")
+	pgNum, err := strconv.Atoi(page)
+	if err != nil {
+		panic(err)
+	}
+	paginator := store.NewUserPagination("/admin/users/hx/list", thing.userStore, pgNum)
+	admin.UserTableMain(paginator).Render(r.Context(), w)
 }

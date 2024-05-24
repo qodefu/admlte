@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"goth/internal/auth/tokenauth" // Package for JWT token authentication logic.
 	"goth/internal/handlers"       // Handlers for HTTP routes.
-	"goth/internal/store/dbstore"  // Data store for user information.
+	"goth/internal/store"
+	"goth/internal/store/dbstore" // Data store for user information.
 	"goth/internal/templates"
+	"goth/internal/templates/admin"
 	"log/slog" // Structured logging.
 	"net/http"
 	"os"        // Access to operating system functionality like signals and stdout.
@@ -67,14 +69,14 @@ func main() {
 		r.Route("/admin", func(r chi.Router) {
 			r.Get("/dashboard", func(w http.ResponseWriter, r *http.Request) {
 				// id := chi.URLParam(r, "id")
-				templates.Layout(templates.DashContent(), "Smart 1").Render(r.Context(), w)
+				templates.Layout(admin.DashContent(), "Smart 1").Render(r.Context(), w)
 			})
 
 			listUsersHandler := handlers.NewListUsersHandler(userStore)
 			r.Route("/users", func(r chi.Router) {
 				r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-					users := userStore.ListUsers()
-					templates.Layout(templates.UserContent(users), "Smart 1").Render(r.Context(), w)
+					paginator := store.NewUserPagination("/admin/users/hx/list", userStore, 1)
+					templates.Layout(admin.UserContent(paginator), "Smart 1").Render(r.Context(), w)
 				})
 				r.Get("/hx/addUserModal", listUsersHandler.HxAddUserModal)
 				r.Get("/hx/editUserModal/{email}", listUsersHandler.HxEditUserModal)

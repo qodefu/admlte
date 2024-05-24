@@ -27,6 +27,66 @@ func NewUserStore() *UserStore {
 				Email:    "1@example.com",
 				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
 			},
+			{
+				Name:     "Rajah Owen",
+				Email:    "qiwatohud@mailinator.com",
+				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
+			},
+			{
+				Name:     "Breanna Sellers",
+				Email:    "bsellers@mailinator.com",
+				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
+			},
+			{
+				Name:     "Aspen Armstrong",
+				Email:    "aatrong@mailinator.com",
+				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
+			},
+			{
+				Name:     "Ezra Boyd",
+				Email:    "eboyd@mailinator.com",
+				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
+			},
+			{
+				Name:     "Keely Calhoun",
+				Email:    "kcalhoun@mailinator.com",
+				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
+			},
+			{
+				Name:     "Kay Ryan",
+				Email:    "kryan@mailinator.com",
+				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
+			},
+			{
+				Name:     "Elijah Ayala",
+				Email:    "eayala@mailinator.com",
+				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
+			},
+			{
+				Name:     "Timothy Barnes",
+				Email:    "tbarnes@mailinator.com",
+				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
+			},
+			{
+				Name:     "Ciaran Leach",
+				Email:    "cleach@mailinator.com",
+				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
+			},
+			{
+				Name:     "Oscar Goodman",
+				Email:    "ogodman@mailinator.com",
+				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
+			},
+			{
+				Name:     "Erich Delacruz",
+				Email:    "edelcaruz@mailinator.com",
+				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
+			},
+			{
+				Name:     "Rigel Barlow",
+				Email:    "rbarlow@mailinator.com",
+				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
+			},
 		},
 	}
 }

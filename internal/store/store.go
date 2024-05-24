@@ -22,4 +22,7 @@ type UserStore interface {
 	// It returns a pointer to a User struct and an error.
 	// The error should be non-nil if the user cannot be found or if there's another issue retrieving the user.
 	GetUser(email string) (*User, error)
+	DeleteUser(email string) error
+	UpdateUser(name, email string, password string) error
+	ListUsers() []User
 }
