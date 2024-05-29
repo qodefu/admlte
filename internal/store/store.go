@@ -2,12 +2,23 @@
 // In this context, it focuses on user-related data operations.
 package store
 
+import "time"
+
 // User struct defines the structure for user information within the application.
 // It includes basic attributes like email and password.
 type User struct {
 	Name     string
 	Email    string // Email attribute to uniquely identify the user.
 	Password string // Password attribute for authentication purposes.
+}
+
+type Appt struct {
+	Id         int
+	ClientId   int
+	ApptTime   time.Time // Email attribute to uniquely identify the user.
+	Status     string    // Password attribute for authentication purposes.
+	Note       string
+	TimeStamps time.Time
 }
 
 // UserStore interface declares the operations that can be performed on user data.
@@ -25,4 +36,8 @@ type UserStore interface {
 	DeleteUser(email string) error
 	UpdateUser(name, email string, password string) error
 	ListUsers() []User
+}
+
+type ApptStore interface {
+	ListAppts() []Appt
 }

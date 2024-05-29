@@ -6,8 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"goth/internal/auth/tokenauth" // Package for JWT token authentication logic.
-	"goth/internal/handlers"       // Handlers for HTTP routes.
-	"goth/internal/store"
+
+	// Package for JWT token authentication logic.
+	"goth/internal/config"
+	"goth/internal/handlers" // Handlers for HTTP routes.
+	appts "goth/internal/handlers/admin/appointments"
+	"goth/internal/handlers/admin/users"
 	"goth/internal/store/dbstore" // Data store for user information.
 	"goth/internal/templates"
 	"goth/internal/templates/admin"
@@ -43,6 +47,7 @@ func main() {
 
 	// Setup the user store and token authentication with a secret key.
 	userStore := dbstore.NewUserStore()
+	apptStore := dbstore.NewApptStore()
 	tokenAuth := tokenauth.NewTokenAuth(tokenauth.NewTokenAuthParams{
 		SecretKey: []byte("secret"),
 	})
@@ -66,42 +71,54 @@ func main() {
 		// Other routes omitted for brevity.
 		r.Get("/", handlers.NewHomeHandler().ServeHTTP)
 
-		r.Route("/admin", func(r chi.Router) {
-			r.Get("/dashboard", func(w http.ResponseWriter, r *http.Request) {
-				// id := chi.URLParam(r, "id")
-				templates.Layout(admin.DashContent(), "Smart 1").Render(r.Context(), w)
-			})
+		cfgRoutes := config.Routes()
 
-			listUsersHandler := handlers.NewListUsersHandler(userStore)
-			r.Route("/users", func(r chi.Router) {
-				r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-					paginator := store.NewUserPagination("/admin/users/hx/list", userStore, 1)
-					templates.Layout(admin.UserContent(paginator), "Smart 1").Render(r.Context(), w)
-				})
-				r.Get("/hx/addUserModal", listUsersHandler.HxAddUserModal)
-				r.Get("/hx/editUserModal/{email}", listUsersHandler.HxEditUserModal)
-				r.Delete("/hx/deleteUserModal/{email}", listUsersHandler.HxDeleteUserModal)
-				r.Post("/hx/createUser", listUsersHandler.HxCreateUser)
-				r.Post("/hx/updateUser", listUsersHandler.HxUpdateUser)
-				r.Delete("/hx/deleteUser/{email}", listUsersHandler.HxDeleteUser)
-				r.Get("/hx/list", listUsersHandler.HxListUsers)
+		// admin users
+		r.Group(func(r chi.Router) {
+			listUsersHandler := users.NewListUsersHandler(userStore)
+			r.Get(cfgRoutes.Admin.Users.Base, func(w http.ResponseWriter, r *http.Request) {
+				paginator := dbstore.NewUserPagination(cfgRoutes.Admin.Users.HX.List, userStore, 1)
+				templates.Layout(admin.UserContent(paginator), "Smart 1").Render(r.Context(), w)
 			})
-
+			r.Get(cfgRoutes.Admin.Users.HX.AddUserModal, listUsersHandler.HxAddUserModal)
+			r.Get(cfgRoutes.Admin.Users.HX.EditUserModal, listUsersHandler.HxEditUserModal)
+			r.Delete(cfgRoutes.Admin.Users.HX.DeleteUserModal, listUsersHandler.HxDeleteUserModal)
+			r.Post(cfgRoutes.Admin.Users.HX.Create, listUsersHandler.HxCreateUser)
+			r.Post(cfgRoutes.Admin.Users.HX.Update, listUsersHandler.HxUpdateUser)
+			r.Delete(cfgRoutes.Admin.Users.HX.Delete, listUsersHandler.HxDeleteUser)
+			r.Get(cfgRoutes.Admin.Users.HX.List, listUsersHandler.HxListUsers)
 		})
-		r.Get("/about", handlers.NewAboutHandler().ServeHTTP)
 
-		r.Get("/register", handlers.NewGetRegisterHandler().ServeHTTP)
+		r.Get(cfgRoutes.Admin.Dashboard.Base, func(w http.ResponseWriter, r *http.Request) {
+			// id := chi.URLParam(r, "id")
+			templates.Layout(admin.DashContent(), "Smart 1").Render(r.Context(), w)
+		})
 
-		r.Post("/register", handlers.NewPostRegisterHandler(handlers.PostRegisterHandlerParams{
-			UserStore: userStore,
-		}).ServeHTTP)
+		r.Group(func(r chi.Router) {
+			apptsHandler := appts.NewApptsHandler(apptStore)
 
-		r.Get("/login", handlers.NewGetLoginHandler().ServeHTTP)
+			r.Get(cfgRoutes.Admin.Appt.Base, func(w http.ResponseWriter, r *http.Request) {
 
-		r.Post("/login", handlers.NewPostLoginHandler(handlers.PostLoginHandlerParams{
-			UserStore: userStore,
-			TokenAuth: tokenAuth,
-		}).ServeHTTP)
+				pgtor := dbstore.NewApptPagination(apptStore)
+				templates.Layout(appts.ApptContent(pgtor), "Appointment").Render(r.Context(), w)
+			})
+			r.Get(cfgRoutes.Admin.Appt.Create, handlers.Func(apptsHandler.CreateForm))
+		})
+
+		// r.Get("/about", handlers.NewAboutHandler().ServeHTTP)
+
+		// r.Get("/register", handlers.NewGetRegisterHandler().ServeHTTP)
+
+		// r.Post("/register", handlers.NewPostRegisterHandler(handlers.PostRegisterHandlerParams{
+		// 	UserStore: userStore,
+		// }).ServeHTTP)
+
+		// r.Get("/login", handlers.NewGetLoginHandler().ServeHTTP)
+
+		// r.Post("/login", handlers.NewPostLoginHandler(handlers.PostLoginHandlerParams{
+		// 	UserStore: userStore,
+		// 	TokenAuth: tokenAuth,
+		// }).ServeHTTP)
 	})
 
 	// Setup channel and signal notification for graceful shutdown.

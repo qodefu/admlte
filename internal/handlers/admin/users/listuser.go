@@ -1,7 +1,6 @@
-package handlers
+package users
 
 import (
-	"goth/internal/store"
 	"goth/internal/store/dbstore"
 	"goth/internal/templates/admin"
 	"goth/internal/validator"
@@ -130,6 +129,6 @@ func (thing *ListUsers) HxListUsers(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	paginator := store.NewUserPagination("/admin/users/hx/list", thing.userStore, pgNum)
+	paginator := dbstore.NewUserPagination("/admin/users/hx/list", thing.userStore, pgNum)
 	admin.UserTableMain(paginator).Render(r.Context(), w)
 }

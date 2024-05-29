@@ -2,6 +2,7 @@ package  admin
 
 import m "goth/internal/middleware"
 import v "goth/internal/validator"
+import   "goth/internal/config"
 import "fmt"
 import "goth/internal/store"
 import "strconv"
@@ -120,7 +121,7 @@ templ UserContent(paginator store.Pagination[store.User]) {
 								type="button"
 								class="primary btn-primary"
 								hx-target="#globalModalContent"
-								hx-get="/admin/users/hx/addUserModal"
+								hx-get={config.Routes().Admin.Users.HX.AddUserModal}
 							>
 								<i class="fa fa-plus-circle mr-1"></i>Add New User
 							</button>
@@ -231,7 +232,7 @@ templ UserTable(paginator store.Pagination[store.User]) {
 		<tbody>
 			for i,user := range paginator.Items() {
 				<tr>
-					<th scope="row">{ fmt.Sprintf("%d", i) }</th>
+					<th scope="row">{ fmt.Sprintf("%d", i+1) }</th>
 					<td>{ user.Name }</td>
 					<td>{ user.Email }</td>
 					<td>
