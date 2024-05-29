@@ -1,8 +1,89 @@
 package appts
 
+type serverData struct {
+    DateRef string  
+    TimeRef string 
+}
 templ ApptForm() {
-    <div>
-        appt form
-    </div>
-
+	<div class="card card-default">
+		<div class="card-header">
+			<h3 class="card-title">Add New Appointment</h3>
+		</div>
+		<div class="card-body">
+			<div class="row">
+				<div class="col-md-6">
+					<div class="form-group">
+						<label for={ idGen.Id("client_name") }>Client:</label>
+						<select name="clientName" id={ idGen.Id("client_name") } class="custom-select my-1 mr-sm-2">
+							<option selected>Choose...</option>
+							<option value="1">one</option>
+							<option value="1">one</option>
+							<option value="1">one</option>
+						</select>
+						<div class="invalid-feedback"></div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="form-group">
+						<label for={ idGen.Id("appt_date") }>Date:</label>
+						<div id={ idGen.Id("appt_date") } class="input-group date" data-target-input="nearest">
+							<input type="text" class="form-control datetimepicker-input" data-target={ idGen.IdRef("appt_date") }/>
+							<div class="input-group-append" data-target={ idGen.IdRef("appt_date") } data-toggle="datetimepicker">
+								<div class="input-group-text">
+									<i class="fa fa-calendar"></i>
+								</div>
+							</div>
+						</div>
+						<div class="invalid-feedback"></div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="form-group">
+						<label for={ idGen.Id("appt_time") }>Appointment Time:</label>
+						<div id={ idGen.Id("appt_time") } class="input-group date" data-target-input="nearest">
+							<input type="text" class="form-control datetimepicker-input" data-target={ idGen.Id("appt_time") }/>
+							<div class="input-group-append" data-target={ idGen.IdRef("appt_time") } data-toggle="datetimepicker">
+								<div class="input-group-text">
+									<i class="far fa-clock"></i>
+								</div>
+							</div>
+						</div>
+						<div class="invalid-feedback"></div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="form-group">
+						<label for={ idGen.Id("appt_time") }>Note:</label>
+						<textarea
+							type="text"
+							class="form-control"
+							name=""
+							value=""
+							id={ idGen.Id("appt_time") }
+						></textarea>
+						<div class="invalid-feedback"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	@templ.JSONScript("appt-server-data", serverData{
+        DateRef: idGen.IdRef("appt_date"), 
+        TimeRef: idGen.IdRef("appt_time")})
+	<script>
+    window.addEventListener('load', function() {
+        var serverData = JSON.parse($("#appt-server-data").text())
+        console.log(serverData)
+        $(serverData.DateRef).datetimepicker({
+            format: 'L',
+        })
+        $(serverData.TimeRef).datetimepicker({
+            format: 'LT',
+        })
+    })
+    </script>
 }

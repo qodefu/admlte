@@ -89,11 +89,7 @@ func main() {
 			r.Get(cfgRoutes.Admin.Users.HX.List, listUsersHandler.HxListUsers)
 		})
 
-		r.Get(cfgRoutes.Admin.Dashboard.Base, func(w http.ResponseWriter, r *http.Request) {
-			// id := chi.URLParam(r, "id")
-			templates.Layout(admin.DashContent(), "Smart 1").Render(r.Context(), w)
-		})
-
+		// Appointments
 		r.Group(func(r chi.Router) {
 			apptsHandler := appts.NewApptsHandler(apptStore)
 
@@ -103,6 +99,12 @@ func main() {
 				templates.Layout(appts.ApptContent(pgtor), "Appointment").Render(r.Context(), w)
 			})
 			r.Get(cfgRoutes.Admin.Appt.Create, handlers.Func(apptsHandler.CreateForm))
+		})
+
+		// Dashboard
+		r.Get(cfgRoutes.Admin.Dashboard.Base, func(w http.ResponseWriter, r *http.Request) {
+			// id := chi.URLParam(r, "id")
+			templates.Layout(admin.DashContent(), "Smart 1").Render(r.Context(), w)
 		})
 
 		// r.Get("/about", handlers.NewAboutHandler().ServeHTTP)

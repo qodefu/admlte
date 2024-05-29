@@ -4,11 +4,10 @@ import v "goth/internal/validator"
 import "fmt"
 import "goth/internal/store"
 import "strconv"
+import "goth/internal/utils"
 
 
-
-
-
+var idGen = utils.NewIdGen("appointments")
 type ApptValidations struct {
 	Name                 v.Validation
 	Email                v.Validation

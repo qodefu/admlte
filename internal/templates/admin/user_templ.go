@@ -365,9 +365,9 @@ func UserForm(uvs UserValidations, edit bool) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var18 string
-		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(m.If(edit, "/admin/users/hx/updateUser", "/admin/users/hx/createUser"))
+		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(m.If(edit, config.Routes().Admin.Users.HX.Update, config.Routes().Admin.Users.HX.Create))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 146, Col: 87}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/admin/user.templ`, Line: 146, Col: 106}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {

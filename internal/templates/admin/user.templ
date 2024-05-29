@@ -143,7 +143,7 @@ templ UserContent(paginator store.Pagination[store.User]) {
 }
 
 templ UserForm(uvs UserValidations, edit bool) {
-	<form hx-post={ m.If(edit, "/admin/users/hx/updateUser", "/admin/users/hx/createUser") }>
+	<form hx-post={ m.If(edit, config.Routes().Admin.Users.HX.Update , config.Routes().Admin.Users.HX.Create) }>
 		<div class="modal-body">
 			<div class="form-group">
 				<label for={ uvs.Name.Key + "_id" }>Name </label>

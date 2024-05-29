@@ -15,6 +15,9 @@ import v "goth/internal/validator"
 import "fmt"
 import "goth/internal/store"
 import "strconv"
+import "goth/internal/utils"
+
+var idGen = utils.NewIdGen("appointments")
 
 type ApptValidations struct {
 	Name                 v.Validation
@@ -88,7 +91,7 @@ func ApptTableMain(paginator store.Pagination[store.Appt]) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(paginator.Total()))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 63, Col: 43}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 62, Col: 43}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -101,7 +104,7 @@ func ApptTableMain(paginator store.Pagination[store.Appt]) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(paginator.PreviousPageUrl())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 69, Col: 110}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 68, Col: 110}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -114,7 +117,7 @@ func ApptTableMain(paginator store.Pagination[store.Appt]) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs("<")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 69, Col: 153}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 68, Col: 153}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -133,7 +136,7 @@ func ApptTableMain(paginator store.Pagination[store.Appt]) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(paginator.PageUrl(i))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 74, Col: 105}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 73, Col: 105}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -146,7 +149,7 @@ func ApptTableMain(paginator store.Pagination[store.Appt]) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(i))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 74, Col: 125}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 73, Col: 125}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -164,7 +167,7 @@ func ApptTableMain(paginator store.Pagination[store.Appt]) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(paginator.PageUrl(i))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 77, Col: 127}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 76, Col: 127}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -177,7 +180,7 @@ func ApptTableMain(paginator store.Pagination[store.Appt]) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(i))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 77, Col: 147}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 76, Col: 147}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -196,7 +199,7 @@ func ApptTableMain(paginator store.Pagination[store.Appt]) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(paginator.NextPageUrl())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 86, Col: 106}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 85, Col: 106}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -209,7 +212,7 @@ func ApptTableMain(paginator store.Pagination[store.Appt]) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(">")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 86, Col: 135}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 85, Col: 135}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -359,7 +362,7 @@ func ApptTable(paginator store.Pagination[store.Appt]) templ.Component {
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", i+1))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 237, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 236, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -372,7 +375,7 @@ func ApptTable(paginator store.Pagination[store.Appt]) templ.Component {
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(appt.ApptTime.Format("2006/01/02"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 239, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 238, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -385,7 +388,7 @@ func ApptTable(paginator store.Pagination[store.Appt]) templ.Component {
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(appt.ApptTime.Format("03:04:05"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 240, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 239, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -398,7 +401,7 @@ func ApptTable(paginator store.Pagination[store.Appt]) templ.Component {
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(appt.Status)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 241, Col: 22}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handlers/admin/appointments/appointment.templ`, Line: 240, Col: 22}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
