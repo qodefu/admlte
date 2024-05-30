@@ -21,3 +21,13 @@ dev:
 .PHONY: build
 build:
 	make tailwind-build && make templ-generate && go build -o ./bin/$(APP_NAME) ./cmd/$(APP_NAME)/main.go
+
+
+.ONESHELL:
+.PHONY: db 
+db: $(eval SHELL:=/bin/bash)
+	cd internal/store
+	rm -f generated.sql
+	bash -c 'cat *.sql > generated.sql'
+	sqlc generate
+	rm -f generated.sql

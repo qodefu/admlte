@@ -1,0 +1,37 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "generated.sql"
+    schema: "generated.sql"
+    gen:
+      go:
+        package: "models"
+        out: "models"
+        sql_package: "pgx/v5"
+
+  # - engine: "postgresql"
+  #   queries: "users.sql"
+  #   schema: "users.sql"
+  #   gen:
+  #     go:
+  #       package: "users"
+  #       out: "users"
+  #       sql_package: "pgx/v5"
+
+  # - engine: "postgresql"
+  #   queries: "appointments.sql"
+  #   schema: "appointments.sql"
+  #   gen:
+  #     go:
+  #       package: "appointments"
+  #       out: "appointments"
+  #       sql_package: "pgx/v5"
+
+  # - engine: "postgresql"
+  #   queries: "clients.sql"
+  #   schema: "clients.sql"
+  #   gen:
+  #     go:
+  #       package: "clients"
+  #       out: "clients"
+  #       sql_package: "pgx/v5"
