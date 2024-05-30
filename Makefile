@@ -28,6 +28,6 @@ build:
 db: $(eval SHELL:=/bin/bash)
 	cd internal/store
 	rm -f generated.sql
-	bash -c 'cat *.sql > generated.sql'
+	bash -c 'cat sql/*.sql > generated.sql'
 	sqlc generate
 	rm -f generated.sql
