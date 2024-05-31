@@ -1,10 +1,10 @@
 
 CREATE TABLE appointments(
-	Id        SERIAL PRIMARY KEY, 
-	ClientId   int,
-	ApptTime   timestamp,
-	Status     text,
-	Note      text,
+	id        SERIAL PRIMARY KEY, 
+	client_id   int,
+	appt_time   timestamp,
+	status     text,
+	note      text,
   created timestamp 
 );
 
@@ -19,7 +19,7 @@ ORDER BY $1;
 
 -- name: CreateAppt :one
 INSERT INTO appointments(
-  clientId, ApptTime, Status, Note, created
+  client_id, appt_time, Status, Note, created
 ) VALUES (
   $1, $2, $3, $4, $5
 )
@@ -27,8 +27,8 @@ RETURNING *;
 
 -- name: UpdateAppt :exec
 UPDATE appointments 
-  set clientId= $2,
-  apptTime = $3,
+  set client_id= $2,
+  appt_time = $3,
   status = $4,
   note = $5
 WHERE id = $1;

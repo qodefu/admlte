@@ -6,6 +6,7 @@ import   "goth/internal/config"
 import "fmt"
 import "goth/internal/store"
 import "strconv"
+import "goth/internal/store/models"
 
 type UserValidations struct {
 	Name                 v.Validation
@@ -52,7 +53,8 @@ templ UserModalContent(uv UserValidations, edit bool) {
 	</div>
 }
 
-templ UserTableMain(paginator store.Pagination[store.User]) {
+
+templ UserTableMain(paginator store.Pagination[models.User]) {
 	<div class="card" id="userTableMain">
 		<div class="card-body">
 			@UserTable(paginator)
@@ -89,7 +91,7 @@ templ UserTableMain(paginator store.Pagination[store.User]) {
 	</div>
 }
 
-templ UserContent(paginator store.Pagination[store.User]) {
+templ UserContent(paginator store.Pagination[models.User]) {
 	<div>
 		<div class="content-header">
 			<div class="container-fluid">
@@ -219,7 +221,7 @@ templ UserForm(uvs UserValidations, edit bool) {
 	</script>
 }
 
-templ UserTable(paginator store.Pagination[store.User]) {
+templ UserTable(paginator store.Pagination[models.User]) {
 	<table id="user-table" class="table table-hover">
 		<thead>
 			<tr>
@@ -234,7 +236,7 @@ templ UserTable(paginator store.Pagination[store.User]) {
 				<tr>
 					<th scope="row">{ fmt.Sprintf("%d", i+1) }</th>
 					<td>{ user.Name }</td>
-					<td>{ user.Email }</td>
+					<td>{ user.Email.String }</td>
 					<td>
 						<a href="#" hx-get={ fmt.Sprintf("/admin/users/hx/editUserModal/%s", user.Email) } hx-target="#globalModalContent">
 							<i class="fa fa-edit mr-2"></i>

@@ -4,7 +4,7 @@ package auth
 
 // Import necessary packages.
 import (
-	"goth/internal/store" // Import your internal store package, presumably for user management.
+	"goth/internal/store/models"
 
 	"github.com/golang-jwt/jwt" // Import the JWT library for handling JSON Web Tokens.
 )
@@ -17,7 +17,7 @@ type TokenAuth interface {
 	// and return a JWT string and any error that occurred during the token generation.
 	// This method is intended to create a new JWT based on user details, typically after
 	// a successful login attempt.
-	GenerateToken(user store.User) (string, error)
+	GenerateToken(user models.User) (string, error)
 
 	// ValidateToken should take a JWT string and return the claims contained within
 	// the token as a MapClaims object, along with any error that occurred during validation.

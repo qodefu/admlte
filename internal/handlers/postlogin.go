@@ -52,7 +52,7 @@ func (h *PostLoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Checking if the provided password matches the stored password for the user.
-	if user.Password == password {
+	if user.Password.String == password {
 		// If the password matches, generate an authentication token for the user.
 		token, err := h.tokenAuth.GenerateToken(*user)
 

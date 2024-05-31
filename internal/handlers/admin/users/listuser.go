@@ -40,7 +40,7 @@ func (thing *ListUsers) HxEditUserModal(w http.ResponseWriter, r *http.Request) 
 
 	uv := admin.UserValidations{
 		v.New("name", user.Name, nil),
-		v.New("email", user.Email, nil),
+		v.New("email", user.Email.String, nil),
 		v.New("password", "", nil),
 		v.New("passwordConfirmation", "", nil),
 	}

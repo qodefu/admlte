@@ -10,8 +10,8 @@ import (
 
 type Appointment struct {
 	ID       int32
-	Clientid pgtype.Int4
-	Appttime pgtype.Timestamp
+	ClientID pgtype.Int4
+	ApptTime pgtype.Timestamp
 	Status   pgtype.Text
 	Note     pgtype.Text
 	Created  pgtype.Timestamp

@@ -8,84 +8,32 @@ import (
 	"errors" // Standard package for creating error objects.
 	"fmt"
 	"goth/internal/store" // Internal package where the User struct is defined.
+	"goth/internal/store/models"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 // UserStore struct holds a slice of users, acting as an in-memory storage mechanism.
 // This is a simple approach and not suitable for production environments due to its non-persistent nature.
 type UserStore struct {
-	users []store.User // Slice of User structs to store user data.
+	users []models.User // Slice of User structs to store user data.
 }
 
 // NewUserStore initializes and returns a new instance of UserStore.
 // It pre-populates the store with a default user for demonstration or testing purposes.
 func NewUserStore() *UserStore {
 	return &UserStore{
-		users: []store.User{
+		users: []models.User{
 			// Initializing with a default user.
 			{
 				Name:     "one",
-				Email:    "1@example.com",
-				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
+				Email:    pgtype.Text{String: "1@example.com"},
+				Password: pgtype.Text{String: "password"}, // Note: Storing passwords in plain text is insecure and not recommended.
 			},
 			{
 				Name:     "Rajah Owen",
-				Email:    "qiwatohud@mailinator.com",
-				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
-			},
-			{
-				Name:     "Breanna Sellers",
-				Email:    "bsellers@mailinator.com",
-				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
-			},
-			{
-				Name:     "Aspen Armstrong",
-				Email:    "aatrong@mailinator.com",
-				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
-			},
-			{
-				Name:     "Ezra Boyd",
-				Email:    "eboyd@mailinator.com",
-				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
-			},
-			{
-				Name:     "Keely Calhoun",
-				Email:    "kcalhoun@mailinator.com",
-				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
-			},
-			{
-				Name:     "Kay Ryan",
-				Email:    "kryan@mailinator.com",
-				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
-			},
-			{
-				Name:     "Elijah Ayala",
-				Email:    "eayala@mailinator.com",
-				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
-			},
-			{
-				Name:     "Timothy Barnes",
-				Email:    "tbarnes@mailinator.com",
-				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
-			},
-			{
-				Name:     "Ciaran Leach",
-				Email:    "cleach@mailinator.com",
-				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
-			},
-			{
-				Name:     "Oscar Goodman",
-				Email:    "ogodman@mailinator.com",
-				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
-			},
-			{
-				Name:     "Erich Delacruz",
-				Email:    "edelcaruz@mailinator.com",
-				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
-			},
-			{
-				Name:     "Rigel Barlow",
-				Email:    "rbarlow@mailinator.com",
-				Password: "password", // Note: Storing passwords in plain text is insecure and not recommended.
+				Email:    pgtype.Text{String: "qiwatohud@mailinator.com"},
+				Password: pgtype.Text{String: "password"}, // Note: Storing passwords in plain text is insecure and not recommended.
 			},
 		},
 	}
@@ -93,10 +41,10 @@ func NewUserStore() *UserStore {
 
 func (s *UserStore) UpdateUser(name, email string, password string) error {
 	for i, user := range s.users {
-		if user.Email == email {
+		if user.Email.String == email {
 			fmt.Println("updated")
 			s.users[i].Name = name
-			s.users[i].Password = password
+			s.users[i].Password.String = password
 			return nil
 		}
 	}
@@ -107,7 +55,7 @@ func (s *UserStore) UpdateUser(name, email string, password string) error {
 
 func (s *UserStore) DeleteUser(email string) error {
 	for i, user := range s.users {
-		if user.Email == email {
+		if user.Email.String == email {
 			s.users = append(s.users[:i], s.users[i+1:]...)
 			return nil
 		}
@@ -121,22 +69,22 @@ func (s *UserStore) DeleteUser(email string) error {
 // It checks for existing users with the same email to avoid duplicates and returns an error if found.
 func (s *UserStore) CreateUser(name, email string, password string) error {
 	for _, user := range s.users {
-		if user.Email == email {
+		if user.Email.String == email {
 			// Preventing duplicate user registration.
 			return errors.New("user already exists")
 		}
 	}
 
 	// Appending the new user to the users slice if no duplicate is found.
-	s.users = append(s.users, store.User{Name: name, Email: email, Password: password})
+	s.users = append(s.users, models.User{Name: name, Email: pgtype.Text{String: email}, Password: pgtype.Text{String: password}})
 	return nil
 }
 
 // GetUser searches for a user by email and returns the user object if found.
 // If no user is found with the provided email, it returns an error.
-func (s *UserStore) GetUser(email string) (*store.User, error) {
+func (s *UserStore) GetUser(email string) (*models.User, error) {
 	for _, user := range s.users {
-		if user.Email == email {
+		if user.Email.String == email {
 			// Found the user, return a pointer to the User struct.
 			return &user, nil
 		}
@@ -146,7 +94,7 @@ func (s *UserStore) GetUser(email string) (*store.User, error) {
 	return nil, errors.New("user not found")
 }
 
-func (s *UserStore) ListUsers() []store.User {
+func (s *UserStore) ListUsers() []models.User {
 	return s.users[:]
 }
 
@@ -177,8 +125,8 @@ func (thing UserPagination) Pages() []int {
 	return ret
 }
 
-func (thing UserPagination) Items() []store.User {
-	var ret []store.User
+func (thing UserPagination) Items() []models.User {
+	var ret []models.User
 	k := (thing.curPage - 1) * thing.itemsPerPage
 	for i, u := range thing.store.ListUsers() {
 		if i >= k && i < k+thing.itemsPerPage {

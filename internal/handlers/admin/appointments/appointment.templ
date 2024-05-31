@@ -5,6 +5,7 @@ import "fmt"
 import "goth/internal/store"
 import "strconv"
 import "goth/internal/utils"
+import "goth/internal/store/models"
 
 
 var idGen = utils.NewIdGen("appointments")
@@ -53,7 +54,7 @@ type ApptValidations struct {
 // 	</div>
 // }
 
-templ ApptTableMain(paginator store.Pagination[store.Appt]) {
+templ ApptTableMain(paginator store.Pagination[models.Appointment]) {
 	<div class="card" id="apptTableMain">
 		<div class="card-body">
 			@ApptTable(paginator)
@@ -90,7 +91,7 @@ templ ApptTableMain(paginator store.Pagination[store.Appt]) {
 	</div>
 }
 
-templ ApptContent(paginator store.Pagination[store.Appt]) {
+templ ApptContent(paginator store.Pagination[models.Appointment]) {
 	<div>
 		<div class="content-header">
 			<div class="container-fluid">
@@ -218,7 +219,7 @@ templ ApptContent(paginator store.Pagination[store.Appt]) {
 // 	</script>
 // }
 
-templ ApptTable(paginator store.Pagination[store.Appt]) {
+templ ApptTable(paginator store.Pagination[models.Appointment]) {
 	<table id="appt-table" class="table table-hover">
 		<thead>
 			<tr>
@@ -235,9 +236,9 @@ templ ApptTable(paginator store.Pagination[store.Appt]) {
 				<tr>
 					<th scope="row">{ fmt.Sprintf("%d", i+1) }</th>
 					<td>client name</td>
-					<td>{ appt.ApptTime.Format("2006/01/02") }</td>
-					<td>{ appt.ApptTime.Format("03:04:05") }</td>
-					<td>{ appt.Status }</td>
+					<td>{ appt.ApptTime.Time.Format("2006/01/02") }</td>
+					<td>{ appt.ApptTime.Time.Format("03:04:05") }</td>
+					<td>{ appt.Status.String }</td>
 					<td>
 						<a href="#" >
 							<i class="fa fa-edit mr-2"></i>

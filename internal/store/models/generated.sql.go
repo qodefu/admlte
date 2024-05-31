@@ -13,16 +13,16 @@ import (
 
 const createAppt = `-- name: CreateAppt :one
 INSERT INTO appointments(
-  clientId, ApptTime, Status, Note, created
+  client_id, appt_time, Status, Note, created
 ) VALUES (
   $1, $2, $3, $4, $5
 )
-RETURNING id, clientid, appttime, status, note, created
+RETURNING id, client_id, appt_time, status, note, created
 `
 
 type CreateApptParams struct {
-	Clientid pgtype.Int4
-	Appttime pgtype.Timestamp
+	ClientID pgtype.Int4
+	ApptTime pgtype.Timestamp
 	Status   pgtype.Text
 	Note     pgtype.Text
 	Created  pgtype.Timestamp
@@ -30,8 +30,8 @@ type CreateApptParams struct {
 
 func (q *Queries) CreateAppt(ctx context.Context, arg CreateApptParams) (Appointment, error) {
 	row := q.db.QueryRow(ctx, createAppt,
-		arg.Clientid,
-		arg.Appttime,
+		arg.ClientID,
+		arg.ApptTime,
 		arg.Status,
 		arg.Note,
 		arg.Created,
@@ -39,8 +39,8 @@ func (q *Queries) CreateAppt(ctx context.Context, arg CreateApptParams) (Appoint
 	var i Appointment
 	err := row.Scan(
 		&i.ID,
-		&i.Clientid,
-		&i.Appttime,
+		&i.ClientID,
+		&i.ApptTime,
 		&i.Status,
 		&i.Note,
 		&i.Created,
@@ -134,7 +134,7 @@ func (q *Queries) DeleteClient(ctx context.Context, id int32) error {
 }
 
 const getAppointment = `-- name: GetAppointment :one
-SELECT id, clientid, appttime, status, note, created FROM appointments 
+SELECT id, client_id, appt_time, status, note, created FROM appointments 
 WHERE id = $1 LIMIT 1
 `
 
@@ -143,8 +143,8 @@ func (q *Queries) GetAppointment(ctx context.Context, id int32) (Appointment, er
 	var i Appointment
 	err := row.Scan(
 		&i.ID,
-		&i.Clientid,
-		&i.Appttime,
+		&i.ClientID,
+		&i.ApptTime,
 		&i.Status,
 		&i.Note,
 		&i.Created,
@@ -202,7 +202,7 @@ func (q *Queries) GetUserClient(ctx context.Context, id int64) (GetUserClientRow
 }
 
 const listAppt = `-- name: ListAppt :many
-SELECT id, clientid, appttime, status, note, created FROM  appointments 
+SELECT id, client_id, appt_time, status, note, created FROM  appointments 
 ORDER BY $1
 `
 
@@ -217,8 +217,8 @@ func (q *Queries) ListAppt(ctx context.Context, dollar_1 interface{}) ([]Appoint
 		var i Appointment
 		if err := rows.Scan(
 			&i.ID,
-			&i.Clientid,
-			&i.Appttime,
+			&i.ClientID,
+			&i.ApptTime,
 			&i.Status,
 			&i.Note,
 			&i.Created,
@@ -291,8 +291,8 @@ func (q *Queries) ListClients(ctx context.Context, dollar_1 interface{}) ([]Clie
 
 const updateAppt = `-- name: UpdateAppt :exec
 UPDATE appointments 
-  set clientId= $2,
-  apptTime = $3,
+  set client_id= $2,
+  appt_time = $3,
   status = $4,
   note = $5
 WHERE id = $1
@@ -300,8 +300,8 @@ WHERE id = $1
 
 type UpdateApptParams struct {
 	ID       int32
-	Clientid pgtype.Int4
-	Appttime pgtype.Timestamp
+	ClientID pgtype.Int4
+	ApptTime pgtype.Timestamp
 	Status   pgtype.Text
 	Note     pgtype.Text
 }
@@ -309,8 +309,8 @@ type UpdateApptParams struct {
 func (q *Queries) UpdateAppt(ctx context.Context, arg UpdateApptParams) error {
 	_, err := q.db.Exec(ctx, updateAppt,
 		arg.ID,
-		arg.Clientid,
-		arg.Appttime,
+		arg.ClientID,
+		arg.ApptTime,
 		arg.Status,
 		arg.Note,
 	)

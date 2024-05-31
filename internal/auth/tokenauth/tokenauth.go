@@ -2,9 +2,10 @@ package tokenauth
 
 // Import necessary packages.
 import (
-	"errors"              // For creating error messages.
-	"goth/internal/store" // Presumably, your internal package for user management.
-	"time"                // For setting token expiration times.
+	"errors" // For creating error messages.
+	// Presumably, your internal package for user management.
+	"goth/internal/store/models"
+	"time" // For setting token expiration times.
 
 	"github.com/go-chi/jwtauth/v5" // JWT middleware for the Chi router.
 	"github.com/golang-jwt/jwt"    // The JWT library for Go.
@@ -31,10 +32,10 @@ func NewTokenAuth(params NewTokenAuthParams) *TokenAuth {
 }
 
 // GenerateToken creates a new JWT for a user. It includes the user's email and an expiration time.
-func (a *TokenAuth) GenerateToken(user store.User) (string, error) {
+func (a *TokenAuth) GenerateToken(user models.User) (string, error) {
 	// Define the payload for the token. 'exp' sets the expiration time.
 	payload := map[string]interface{}{
-		"email": user.Email,                            // Include the user's email in the token payload.
+		"email": user.Email.String,                     // Include the user's email in the token payload.
 		"exp":   time.Now().Add(time.Hour * 24).Unix(), // Token expires in 24 hours.
 	}
 

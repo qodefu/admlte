@@ -2,14 +2,17 @@ package dbstore
 
 import (
 	"goth/internal/store"
+	"goth/internal/store/models"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type ApptStore struct {
-	appts []store.Appt // Slice of User structs to store user data.
+	appts []models.Appointment // Slice of User structs to store user data.
 }
 
-func (thing ApptStore) ListAppts() []store.Appt {
+func (thing ApptStore) ListAppts() []models.Appointment {
 	return thing.appts
 }
 
@@ -17,14 +20,14 @@ func (thing ApptStore) ListAppts() []store.Appt {
 // It pre-populates the store with a default user for demonstration or testing purposes.
 func NewApptStore() *ApptStore {
 	return &ApptStore{
-		appts: []store.Appt{
+		appts: []models.Appointment{
 			{
-				Id:         1,
-				ClientId:   1,
-				ApptTime:   time.Now(),
-				Status:     "good",
-				Note:       "Nothing",
-				TimeStamps: time.Now(),
+				ID:       1,
+				ClientID: pgtype.Int4{Int32: 1},
+				ApptTime: pgtype.Timestamp{Time: time.Now()},
+				Status:   pgtype.Text{String: "good"},
+				Note:     pgtype.Text{String: "Nothing"},
+				Created:  pgtype.Timestamp{Time: time.Now()},
 			},
 		},
 	}
@@ -54,7 +57,7 @@ func (thing ApptPagination) PerPage() int {
 	return 5
 }
 
-func (thing ApptPagination) Items() []store.Appt {
+func (thing ApptPagination) Items() []models.Appointment {
 	return thing.store.ListAppts()
 }
 
@@ -70,7 +73,7 @@ func (thing ApptPagination) PreviousPageUrl() string {
 	return "#"
 }
 
-func NewApptPagination(store store.ApptStore) store.Pagination[store.Appt] {
+func NewApptPagination(store store.ApptStore) store.Pagination[models.Appointment] {
 	return ApptPagination{
 		store: store,
 	}
