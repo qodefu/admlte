@@ -1,3 +1,5 @@
+APP_NAME:=admlte
+
 .PHONY: tailwind-watch
 tailwind-watch:
 	./tailwindcss -i ./static/css/input.css -o ./static/css/style.css --watch
@@ -27,7 +29,6 @@ build:
 .PHONY: db 
 db: $(eval SHELL:=/bin/bash)
 	cd internal/store
-	rm -f generated.sql
-	bash -c 'cat sql/*.sql > generated.sql'
+	rm -f sql/queries.sql
+	bash -c 'cat sql/queries/*.sql > sql/queries.sql'
 	sqlc generate
-	rm -f generated.sql
