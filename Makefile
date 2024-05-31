@@ -1,4 +1,11 @@
 APP_NAME:=admlte
+## set the following env before run make file
+#DB_HOST=
+#DB_USER=
+#DB_PWD=
+#DB_DATABASE=
+#DB_PORT=
+
 
 .PHONY: tailwind-watch
 tailwind-watch:
@@ -26,9 +33,19 @@ build:
 
 
 .ONESHELL:
-.PHONY: db 
-db: $(eval SHELL:=/bin/bash)
+.PHONY: model-gen 
+model-gen: $(eval SHELL:=/bin/bash)
 	cd internal/store
 	rm -f sql/queries.sql
 	bash -c 'cat sql/queries/*.sql > sql/queries.sql'
 	sqlc generate
+
+.PHONY: pgosql
+pgosql:
+	go build -o ./bin/pgosql ./cmd/pgosql
+
+
+.PHONY: db
+db: pgosql
+	go run ./cmd/pgosql/main.go -user $(DB_USER) -password $(DB_PWD) -host $(DB_HOST) -port $(DB_PORT) -db $(DB_DATABASE) -file internal/store/sql/schema.sql 
+	

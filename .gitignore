@@ -3,3 +3,4 @@ tmp
 internal/templates/*.go
 internal/templates/*.txt
 .vscode/settings.json
+.env

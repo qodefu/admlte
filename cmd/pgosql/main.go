@@ -65,7 +65,7 @@ func main() {
 	var db = flag.String("db", "", "database")
 	var file = flag.String("file", "", "sql file")
 	flag.Parse()
-	fmt.Println(*file)
+	fmt.Println("loading script: ", *file)
 	if err := run(*host, *user, *pwd, *db, *file, *port); err != nil {
 		log.Fatal(err)
 	}
