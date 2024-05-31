@@ -12,7 +12,7 @@ import (
 	"goth/internal/handlers" // Handlers for HTTP routes.
 	appts "goth/internal/handlers/admin/appointments"
 	"goth/internal/handlers/admin/users"
-	"goth/internal/store/dbstore" // Data store for user information.
+	"goth/internal/store/mockstore" // Data store for user information.
 	"goth/internal/templates"
 	"goth/internal/templates/admin"
 	"log/slog" // Structured logging.
@@ -46,8 +46,8 @@ func main() {
 	r := chi.NewRouter()
 
 	// Setup the user store and token authentication with a secret key.
-	userStore := dbstore.NewUserStore()
-	apptStore := dbstore.NewApptStore()
+	userStore := mockstore.NewUserStore()
+	apptStore := mockstore.NewApptStore()
 	tokenAuth := tokenauth.NewTokenAuth(tokenauth.NewTokenAuthParams{
 		SecretKey: []byte("secret"),
 	})
@@ -77,7 +77,7 @@ func main() {
 		r.Group(func(r chi.Router) {
 			listUsersHandler := users.NewListUsersHandler(userStore)
 			r.Get(cfgRoutes.Admin.Users.Base, func(w http.ResponseWriter, r *http.Request) {
-				paginator := dbstore.NewUserPagination(cfgRoutes.Admin.Users.HX.List, userStore, 1)
+				paginator := mockstore.NewUserPagination(cfgRoutes.Admin.Users.HX.List, userStore, 1)
 				templates.Layout(admin.UserContent(paginator), "Smart 1").Render(r.Context(), w)
 			})
 			r.Get(cfgRoutes.Admin.Users.HX.AddUserModal, listUsersHandler.HxAddUserModal)
@@ -95,7 +95,7 @@ func main() {
 
 			r.Get(cfgRoutes.Admin.Appt.Base, func(w http.ResponseWriter, r *http.Request) {
 
-				pgtor := dbstore.NewApptPagination(apptStore)
+				pgtor := mockstore.NewApptPagination(apptStore)
 				templates.Layout(appts.ApptContent(pgtor), "Appointment").Render(r.Context(), w)
 			})
 			r.Get(cfgRoutes.Admin.Appt.Create, handlers.Func(apptsHandler.CreateForm))

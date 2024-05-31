@@ -1,4 +1,4 @@
-package dbstore
+package mockstore
 
 import (
 	"goth/internal/store"

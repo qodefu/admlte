@@ -1,15 +1,15 @@
 package handlers
 
 import (
-	"goth/internal/store/dbstore"
+	"goth/internal/store/mockstore"
 	"net/http"
 )
 
 type DashboardHandler struct {
-	store dbstore.UserStore
+	store mockstore.UserStore
 }
 
-func NewDashboardHandler(userRepo dbstore.UserStore) *DashboardHandler {
+func NewDashboardHandler(userRepo mockstore.UserStore) *DashboardHandler {
 	return &DashboardHandler{
 		userRepo,
 	}
