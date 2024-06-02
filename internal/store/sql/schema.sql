@@ -1,5 +1,5 @@
 --@block
-DROP TABLE IF EXISTS usrs;
+DROP TABLE IF EXISTS users;
 --@block
 CREATE TABLE IF NOT EXISTS users(
   id   BIGSERIAL PRIMARY KEY,

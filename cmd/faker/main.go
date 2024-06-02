@@ -2,45 +2,117 @@ package main
 
 import (
 	"context"
+	"errors"
+	"flag"
 	"fmt"
 	"goth/internal/store/models"
 	"log"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/brianvoe/gofakeit/v7"
+
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func run() error {
-	ctx := context.Background()
-	connectStr := "postgres://app1:app1@lovelace:9000/app1"
-	conn, err := pgx.Connect(ctx, connectStr)
+var ctx context.Context
+var conn *pgxpool.Pool
+var queries *models.Queries
+
+type Errors struct {
+	errors []error
+}
+
+func (thing Errors) Error() string {
+	e := errors.Join(thing.errors...)
+	return e.Error()
+}
+
+func fakeUsers() error {
+
+	_, err := conn.Exec(ctx, "DELETE FROM users;")
 	if err != nil {
 		return err
 	}
-	defer conn.Close(ctx)
+	for i := 0; i < 10; i++ {
+		// create an user
+		_, err := queries.CreateUser(ctx, models.CreateUserParams{
+			Name:     gofakeit.Name(),
+			Email:    pgtype.Text{String: gofakeit.Email(), Valid: true},
+			Password: pgtype.Text{String: gofakeit.Password(true, true, true, false, false, 8), Valid: true},
+		})
+		if err != nil {
+			return err
+		}
+		// log.Println(insertedAuthor)
 
-	queries := models.New(conn)
+	}
+	return nil
 
+}
+
+func fakeClis() ([]int, error) {
+	_, err := conn.Exec(ctx, "DELETE FROM clients;")
+	if err != nil {
+		return nil, err
+	}
+	var clids []int
+	for i := 0; i < 10; i++ {
+		// create an user
+		client, err := queries.CreateClient(ctx, gofakeit.Name())
+		if err != nil {
+			return nil, err
+		}
+		clids = append(clids, int(client.ID))
+
+	}
+	return clids, nil
+}
+
+func fakeAppts(clids []int) error {
+	_, err := conn.Exec(ctx, "DELETE FROM appointments;")
+	if err != nil {
+		return err
+	}
+	for i := 0; i < 10; i++ {
+		// create an user
+		_, err := queries.CreateAppt(ctx, models.CreateApptParams{
+			ClientID: pgtype.Int4{Int32: int32(gofakeit.RandomInt(clids)), Valid: true},
+			ApptTime: pgtype.Timestamp{Time: gofakeit.Date(), Valid: true},
+			Note:     pgtype.Text{String: gofakeit.Paragraph(2, 1, 35, " "), Valid: true},
+			Status:   pgtype.Text{String: gofakeit.BS(), Valid: true},
+		})
+		if err != nil {
+			return err
+		}
+		// log.Println(insertedAuthor)
+
+	}
+	return nil
+}
+
+var err error
+
+func run(host, user, pwd, db string, port int) error {
+	ctx = context.Background()
+	connectStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s", user, pwd, host, port, db)
+	conn, err = pgxpool.New(ctx, connectStr)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	queries = models.New(conn)
+
+	gofakeit.Seed(42)
+	usrerr := fakeUsers()
+	clids, clierr := fakeClis()
+	appterr := fakeAppts(clids)
 	// list all authors
-	authors, err := queries.ListUsers(ctx)
-	if err != nil {
-		return err
-	}
+	authors, listerr := queries.ListUsers(ctx)
 	for _, u := range authors {
 		fmt.Println(u)
 	}
 	// log.Println(authors)
-
-	// create an author
-	// insertedAuthor, err := queries.CreateUser(ctx, models.CreateUserParams{
-	// 	Name:     "kai",
-	// 	Email:    pgtype.Text{String: "foo@bar.com", Valid: true},
-	// 	Password: pgtype.Text{String: "pwd", Valid: true},
-	// })
-	// if err != nil {
-	// 	return err
-	// }
-	// log.Println(insertedAuthor)
-
 	// // get the author we just inserted
 	// fetchedAuthor, err := queries.GetUser(ctx, insertedAuthor.ID)
 	// if err != nil {
@@ -49,11 +121,17 @@ func run() error {
 
 	// // prints true
 	// log.Println(reflect.DeepEqual(insertedAuthor, fetchedAuthor))
-	return nil
+	return errors.Join(usrerr, clierr, appterr, listerr)
 }
 
 func main() {
-	if err := run(); err != nil {
+	var user = flag.String("user", "", "user")
+	var pwd = flag.String("password", "", "password")
+	var host = flag.String("host", "", "host")
+	var port = flag.Int("port", 5432, "port")
+	var db = flag.String("db", "", "database")
+	flag.Parse()
+	if err := run(*host, *user, *pwd, *db, *port); err != nil {
 		log.Fatal(err)
 	}
 }

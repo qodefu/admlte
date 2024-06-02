@@ -45,7 +45,10 @@ pgosql:
 	go build -o ./bin/pgosql ./cmd/pgosql
 
 
-.PHONY: db
-db: pgosql
+.PHONY: db-init
+db-init: 
 	go run ./cmd/pgosql/main.go -user $(DB_USER) -password $(DB_PWD) -host $(DB_HOST) -port $(DB_PORT) -db $(DB_DATABASE) -file internal/store/sql/schema.sql 
 	
+.PHONY: db-fake
+db-fake: 
+	go run ./cmd/faker/main.go -user $(DB_USER) -password $(DB_PWD) -host $(DB_HOST) -port $(DB_PORT) -db $(DB_DATABASE) 
