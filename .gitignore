@@ -4,3 +4,4 @@ internal/templates/*.go
 internal/templates/*.txt
 .vscode/settings.json
 .env
+**/*_templ.go
