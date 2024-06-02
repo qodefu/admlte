@@ -91,7 +91,7 @@ func main() {
 			listUsersHandler := users.NewListUsersHandler(userStore)
 			r.Get(cfgRoutes.Admin.Users.Base, func(w http.ResponseWriter, r *http.Request) {
 				paginator := dbstore.NewUserPagination(cfgRoutes.Admin.Users.HX.List, userStore, 1)
-				templates.Layout(admin.UserContent(paginator), "Smart 1").Render(r.Context(), w)
+				templates.Layout(users.UserContent(paginator), "Smart 1").Render(r.Context(), w)
 			})
 			r.Get(cfgRoutes.Admin.Users.HX.AddUserModal, listUsersHandler.HxAddUserModal)
 			r.Get(cfgRoutes.Admin.Users.HX.EditUserModal, listUsersHandler.HxEditUserModal)
