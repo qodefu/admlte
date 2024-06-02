@@ -24,6 +24,14 @@ type AbstractPagination[T any] struct {
 	Child        Pagination[T]
 }
 
+func MkAbsPgtor[T any](limit, curpage int, url string) AbstractPagination[T] {
+	return AbstractPagination[T]{
+		BaseUrl:      url,
+		ItemsPerPage: limit,
+		CurPage:      curpage,
+	}
+}
+
 func (thing AbstractPagination[T]) PageUrl(page int) string {
 	return fmt.Sprintf("%s?page=%d", thing.BaseUrl, page)
 }

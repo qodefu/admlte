@@ -139,6 +139,17 @@ func (q *Queries) GetAppointment(ctx context.Context, id int32) (Appointment, er
 	return i, err
 }
 
+const getAppointmentCount = `-- name: GetAppointmentCount :one
+SELECT count(id) FROM appointments
+`
+
+func (q *Queries) GetAppointmentCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, getAppointmentCount)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getClient = `-- name: GetClient :one
 SELECT id, name, created FROM clients 
 WHERE id = $1 LIMIT 1
@@ -220,11 +231,11 @@ func (q *Queries) GetUserCount(ctx context.Context) (int64, error) {
 
 const listAppt = `-- name: ListAppt :many
 SELECT id, client_id, appt_time, status, note, created FROM  appointments 
-ORDER BY $1
+ORDER BY id
 `
 
-func (q *Queries) ListAppt(ctx context.Context, dollar_1 interface{}) ([]Appointment, error) {
-	rows, err := q.db.Query(ctx, listAppt, dollar_1)
+func (q *Queries) ListAppt(ctx context.Context) ([]Appointment, error) {
+	rows, err := q.db.Query(ctx, listAppt)
 	if err != nil {
 		return nil, err
 	}

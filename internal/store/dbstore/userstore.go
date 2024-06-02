@@ -42,8 +42,8 @@ func (s *UserStore) DeleteUser(id int64) error {
 func (s *UserStore) CreateUser(name, email, password string) error {
 	_, err := s.db.CreateUser(context.Background(), models.CreateUserParams{
 		Name:     name,
-		Email:    pgtype.Text{String: name, Valid: true},
-		Password: pgtype.Text{String: email, Valid: true},
+		Email:    pgtype.Text{String: email, Valid: true},
+		Password: pgtype.Text{String: password, Valid: true},
 	})
 	return err
 }
@@ -78,24 +78,16 @@ func (s UserStore) GetUserCount() int64 {
 	return ret
 }
 
-func mkabs(limit, curpage int, url string) store.AbstractPagination[models.User] {
-	return store.AbstractPagination[models.User]{
-		BaseUrl:      url,
-		ItemsPerPage: limit,
-		CurPage:      curpage,
-	}
-}
-
 type UserPagination struct {
 	store.AbstractPagination[models.User]
 	store store.UserStore
 }
 
-func NewUserPagination(url string, store store.UserStore, pg int) UserPagination {
-	super := mkabs(5, pg, url)
+func NewUserPagination(url string, repo store.UserStore, pg int) UserPagination {
+	super := store.MkAbsPgtor[models.User](5, pg, url)
 	ret := UserPagination{
 		super,
-		store,
+		repo,
 	}
 	ret.Child = ret
 	return ret

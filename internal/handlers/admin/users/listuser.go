@@ -21,11 +21,11 @@ func NewListUsersHandler(us store.UserStore) *ListUsers {
 }
 
 func (thing *ListUsers) HxAddUserModal(w http.ResponseWriter, r *http.Request) {
-
 	// id := chi.URLParam(r, "id")
 
 	w.Header().Set("HX-Trigger", "show-global-modal-form")
 	uv := admin.UserValidations{
+		v.New("id", "", nil),
 		v.New("name", "", nil),
 		v.New("email", "", nil),
 		v.New("password", "", nil),
@@ -36,10 +36,12 @@ func (thing *ListUsers) HxAddUserModal(w http.ResponseWriter, r *http.Request) {
 }
 
 func (thing *ListUsers) HxEditUserModal(w http.ResponseWriter, r *http.Request) {
-	email := chi.URLParam(r, "email")
-	user, _ := thing.userStore.GetUserByEmail(email)
+	idStr := chi.URLParam(r, "id")
+	idVal, _ := strconv.Atoi(idStr)
+	user, _ := thing.userStore.GetUserById(int64(idVal))
 
 	uv := admin.UserValidations{
+		v.New("id", idStr, nil),
 		v.New("name", user.Name, nil),
 		v.New("email", user.Email.String, nil),
 		v.New("password", "", nil),
@@ -51,10 +53,16 @@ func (thing *ListUsers) HxEditUserModal(w http.ResponseWriter, r *http.Request) 
 }
 
 func (thing *ListUsers) HxDeleteUserModal(w http.ResponseWriter, r *http.Request) {
-	email := chi.URLParam(r, "email")
+	idStr := chi.URLParam(r, "id")
+	idVal, _ := strconv.Atoi(idStr)
+	user, err := thing.userStore.GetUserById(int64(idVal))
+	if err != nil {
+
+		panic(err)
+	}
 
 	w.Header().Set("HX-Trigger", "show-global-modal-form")
-	admin.DeleteModalContent(email).Render(r.Context(), w)
+	admin.DeleteModalContent(user).Render(r.Context(), w)
 }
 
 func (thing *ListUsers) HxCreateUser(w http.ResponseWriter, r *http.Request) {
@@ -113,7 +121,7 @@ func (thing *ListUsers) HxUpdateUser(w http.ResponseWriter, r *http.Request) {
 	// validation pass, create user, return empty form
 	if validator.ValidationOk(&validations) {
 		thing.userStore.UpdateUser(nameVal, emailVal, pwdVal, int64(idVal))
-		w.Header().Set("HX-Trigger", `{"close-global-modal-form": [{"foo": 1, "message": "User `+emailVal+` Edited and saved", "tags": "Success!"}]}`)
+		w.Header().Set("HX-Trigger", `{"close-global-modal-form": [{"hxUrl": "/admin/users/hx/list?page=1", "hxTarget": "#userTableMain", "foo": 1, "message": "User `+emailVal+` Edited and saved", "tags": "Success!"}]}`)
 	}
 
 	admin.UserForm(validations, true).Render(r.Context(), w)
@@ -122,9 +130,9 @@ func (thing *ListUsers) HxUpdateUser(w http.ResponseWriter, r *http.Request) {
 func (thing *ListUsers) HxDeleteUser(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	idVal, _ := strconv.Atoi(idStr)
-	thing.userStore.DeleteUser(int64(idVal))
 	fetchedUser, _ := thing.userStore.GetUserById(int64(idVal))
-	w.Header().Set("HX-Trigger", `{"close-global-modal-form": [{"foo": 1, "message": "User `+fetchedUser.Email.String+` deleted", "tags": "Success!"}]}`)
+	thing.userStore.DeleteUser(int64(idVal))
+	w.Header().Set("HX-Trigger", `{"close-global-modal-form": [{"hxUrl": "/admin/users/hx/list?page=1", "hxTarget": "#userTableMain" ,"foo": 1, "message": "User `+fetchedUser.Email.String+` deleted", "tags": "Success!"}]}`)
 
 }
 

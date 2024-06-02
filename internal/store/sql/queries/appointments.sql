@@ -3,9 +3,12 @@
 SELECT * FROM appointments 
 WHERE id = $1 LIMIT 1;
 
+-- name: GetAppointmentCount :one
+SELECT count(id) FROM appointments;
+
 -- name: ListAppt :many
 SELECT * FROM  appointments 
-ORDER BY $1;
+ORDER BY id;
 
 -- name: CreateAppt :one
 INSERT INTO appointments(

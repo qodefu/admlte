@@ -14,9 +14,7 @@ import (
 	appts "goth/internal/handlers/admin/appointments"
 	"goth/internal/handlers/admin/users"
 	"goth/internal/store/dbstore"
-	"goth/internal/store/mockstore"
 
-	// "goth/internal/store/mockstore" // Data store for user information.
 	"goth/internal/store/models"
 	"goth/internal/templates"
 	"goth/internal/templates/admin"
@@ -62,7 +60,7 @@ func main() {
 
 	queries := models.New(conn)
 	userStore := dbstore.NewUserStore(queries)
-	apptStore := mockstore.NewApptStore()
+	apptStore := dbstore.NewApptStore(queries)
 	tokenAuth := tokenauth.NewTokenAuth(tokenauth.NewTokenAuthParams{
 		SecretKey: []byte("secret"),
 	})
@@ -110,7 +108,7 @@ func main() {
 
 			r.Get(cfgRoutes.Admin.Appt.Base, func(w http.ResponseWriter, r *http.Request) {
 
-				pgtor := mockstore.NewApptPagination(apptStore)
+				pgtor := dbstore.NewApptPagination("", queries, 1)
 				templates.Layout(appts.ApptContent(pgtor), "Appointment").Render(r.Context(), w)
 			})
 			r.Get(cfgRoutes.Admin.Appt.Create, handlers.Func(apptsHandler.CreateForm))
