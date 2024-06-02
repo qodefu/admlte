@@ -65,9 +65,13 @@ WHERE id = $1;
 SELECT * FROM users 
 WHERE id = $1 LIMIT 1;
 
+-- name: GetUserByEmail :one
+SELECT * FROM users 
+WHERE email = $1 LIMIT 1;
+
 -- name: ListUsers :many
-SELECT * FROM  users 
-ORDER BY id ASC;
+SELECT * FROM users 
+ORDER BY id ASC OFFSET $2 LIMIT $1;
 
 -- name: CreateUser :one
 INSERT INTO  users(
@@ -88,3 +92,6 @@ WHERE id = $1;
 DELETE FROM users
 WHERE id = $1;
 
+-- name: GetUserCount :one
+SELECT count(*)
+FROM users;

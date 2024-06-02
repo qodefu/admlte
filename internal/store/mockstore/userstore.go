@@ -128,7 +128,7 @@ func (thing UserPagination) Pages() []int {
 func (thing UserPagination) Items() []models.User {
 	var ret []models.User
 	k := (thing.curPage - 1) * thing.itemsPerPage
-	for i, u := range thing.store.ListUsers() {
+	for i, u := range thing.store.ListUsers(thing.curPage*thing.itemsPerPage, thing.itemsPerPage) {
 		if i >= k && i < k+thing.itemsPerPage {
 			ret = append(ret, u)
 		}
@@ -157,7 +157,7 @@ func (thing UserPagination) PreviousPageUrl() string {
 }
 
 func (thing UserPagination) Total() int {
-	return len(thing.store.ListUsers())
+	return -1
 }
 
 func (thing UserPagination) NextPageUrl() string {

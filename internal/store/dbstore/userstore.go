@@ -3,93 +3,108 @@ package dbstore
 import (
 	// Standard package for creating error objects.
 
+	"context"
 	"goth/internal/store" // Internal package where the User struct is defined.
 	"goth/internal/store/models"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 // UserStore struct holds a slice of users, acting as an in-memory storage mechanism.
 // This is a simple approach and not suitable for production environments due to its non-persistent nature.
 type UserStore struct {
+	db *models.Queries
 }
 
 // NewUserStore initializes and returns a new instance of UserStore.
 // It pre-populates the store with a default user for demonstration or testing purposes.
-func NewUserStore() *UserStore {
-	panic("bad")
+func NewUserStore(q *models.Queries) *UserStore {
+	return &UserStore{
+		db: q,
+	}
 }
 
-func (s *UserStore) UpdateUser(name, email string, password string) error {
-	panic("bad")
+func (s *UserStore) UpdateUser(name, email, password string, id int64) error {
+	return s.db.UpdateUser(context.Background(), models.UpdateUserParams{
+		ID:       id,
+		Name:     name,
+		Email:    pgtype.Text{String: email, Valid: true},
+		Password: pgtype.Text{String: password, Valid: true},
+	})
 }
 
-func (s *UserStore) DeleteUser(email string) error {
-	panic("bad")
-	// Appending the new user to the users slice if no duplicate is found.
+func (s *UserStore) DeleteUser(id int64) error {
+	return s.db.DeleteUser(context.Background(), id)
 }
 
 // CreateUser attempts to add a new user to the store.
 // It checks for existing users with the same email to avoid duplicates and returns an error if found.
-func (s *UserStore) CreateUser(name, email string, password string) error {
-	panic("bad")
+func (s *UserStore) CreateUser(name, email, password string) error {
+	_, err := s.db.CreateUser(context.Background(), models.CreateUserParams{
+		Name:     name,
+		Email:    pgtype.Text{String: name, Valid: true},
+		Password: pgtype.Text{String: email, Valid: true},
+	})
+	return err
 }
 
 // GetUser searches for a user by email and returns the user object if found.
 // If no user is found with the provided email, it returns an error.
-func (s *UserStore) GetUser(email string) (*models.User, error) {
-	panic("bad")
+func (s *UserStore) GetUser(email string) (models.User, error) {
+	return s.db.GetUserByEmail(context.Background(), pgtype.Text{String: email, Valid: true})
 }
 
-func (s *UserStore) ListUsers() []models.User {
-	panic("bad")
+// GetUser is a method to retrieve a user by their email.
+// It returns a pointer to a User struct and an error.
+// The error should be non-nil if the user cannot be found or if there's another issue retrieving the user.
+func (s UserStore) GetUserByEmail(email string) (models.User, error) {
+	return s.db.GetUserByEmail(context.Background(), pgtype.Text{String: email, Valid: true})
 }
 
-type UserPagination struct {
-	baseUrl      string
-	curPage      int
-	itemsPerPage int
-	store        store.UserStore
+func (s UserStore) GetUserById(id int64) (models.User, error) {
+	return s.db.GetUser(context.Background(), id)
 }
 
-func NewUserPagination(url string, store store.UserStore, pg int) UserPagination {
-	return UserPagination{baseUrl: url,
-		curPage:      pg,
-		itemsPerPage: 5,
-		store:        store,
+func (s *UserStore) ListUsers(offset, limit int) []models.User {
+	ret, _ := s.db.ListUsers(context.Background(), models.ListUsersParams{
+		Offset: int32(offset),
+		Limit:  int32(limit),
+	})
+	return ret
+}
+
+func (s UserStore) GetUserCount() int64 {
+	ret, _ := s.db.GetUserCount(context.Background())
+	return ret
+}
+
+func mkabs(limit, curpage int, url string) store.AbstractPagination[models.User] {
+	return store.AbstractPagination[models.User]{
+		BaseUrl:      url,
+		ItemsPerPage: limit,
+		CurPage:      curpage,
 	}
 }
 
-func (thing UserPagination) PageUrl(page int) string {
-	panic("bad")
+type UserPagination struct {
+	store.AbstractPagination[models.User]
+	store store.UserStore
 }
 
-func (thing UserPagination) Pages() []int {
-	panic("bad")
+func NewUserPagination(url string, store store.UserStore, pg int) UserPagination {
+	super := mkabs(5, pg, url)
+	ret := UserPagination{
+		super,
+		store,
+	}
+	ret.Child = ret
+	return ret
 }
 
 func (thing UserPagination) Items() []models.User {
-	panic("bad")
-}
-
-func (thing UserPagination) PageCount() int {
-	panic("bad")
-}
-
-func (thing UserPagination) CurrentPage() int {
-	panic("bad")
-}
-
-func (thing UserPagination) PerPage() int {
-	panic("bad")
-}
-
-func (thing UserPagination) PreviousPageUrl() string {
-	panic("bad")
+	return thing.store.ListUsers((thing.CurPage-1)*thing.ItemsPerPage, thing.ItemsPerPage)
 }
 
 func (thing UserPagination) Total() int {
-	panic("bad")
-}
-
-func (thing UserPagination) NextPageUrl() string {
-	panic("bad")
+	return int(thing.store.GetUserCount())
 }

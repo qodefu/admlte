@@ -41,7 +41,7 @@ func (h *PostLoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 
 	// Attempting to retrieve the user by email from the user store.
-	user, err := h.userStore.GetUser(email)
+	user, err := h.userStore.GetUserByEmail(email)
 
 	// If there's an error (e.g., user not found), respond with an unauthorized status and error template.
 	if err != nil {
@@ -54,7 +54,7 @@ func (h *PostLoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Checking if the provided password matches the stored password for the user.
 	if user.Password.String == password {
 		// If the password matches, generate an authentication token for the user.
-		token, err := h.tokenAuth.GenerateToken(*user)
+		token, err := h.tokenAuth.GenerateToken(user)
 
 		if err != nil {
 			// If token generation fails, respond with an internal server error status.

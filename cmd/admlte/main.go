@@ -6,13 +6,18 @@ import (
 	"errors"
 	"fmt"
 	"goth/internal/auth/tokenauth" // Package for JWT token authentication logic.
+	"log"
 
 	// Package for JWT token authentication logic.
 	"goth/internal/config"
 	"goth/internal/handlers" // Handlers for HTTP routes.
 	appts "goth/internal/handlers/admin/appointments"
 	"goth/internal/handlers/admin/users"
-	"goth/internal/store/mockstore" // Data store for user information.
+	"goth/internal/store/dbstore"
+	"goth/internal/store/mockstore"
+
+	// "goth/internal/store/mockstore" // Data store for user information.
+	"goth/internal/store/models"
 	"goth/internal/templates"
 	"goth/internal/templates/admin"
 	"log/slog" // Structured logging.
@@ -27,6 +32,7 @@ import (
 	"github.com/go-chi/chi/v5"            // Chi router for handling HTTP requests.
 	"github.com/go-chi/chi/v5/middleware" // Built-in middleware from Chi.
 	"github.com/go-chi/jwtauth/v5"        // JWT authentication middleware.
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // TokenFromCookie extracts the JWT from the access_token cookie.
@@ -46,7 +52,16 @@ func main() {
 	r := chi.NewRouter()
 
 	// Setup the user store and token authentication with a secret key.
-	userStore := mockstore.NewUserStore()
+	connectStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s", "app1", "app1", "lovelace", 9000, "app1")
+
+	conn, err := pgxpool.New(context.Background(), connectStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	queries := models.New(conn)
+	userStore := dbstore.NewUserStore(queries)
 	apptStore := mockstore.NewApptStore()
 	tokenAuth := tokenauth.NewTokenAuth(tokenauth.NewTokenAuthParams{
 		SecretKey: []byte("secret"),
@@ -77,7 +92,7 @@ func main() {
 		r.Group(func(r chi.Router) {
 			listUsersHandler := users.NewListUsersHandler(userStore)
 			r.Get(cfgRoutes.Admin.Users.Base, func(w http.ResponseWriter, r *http.Request) {
-				paginator := mockstore.NewUserPagination(cfgRoutes.Admin.Users.HX.List, userStore, 1)
+				paginator := dbstore.NewUserPagination(cfgRoutes.Admin.Users.HX.List, userStore, 1)
 				templates.Layout(admin.UserContent(paginator), "Smart 1").Render(r.Context(), w)
 			})
 			r.Get(cfgRoutes.Admin.Users.HX.AddUserModal, listUsersHandler.HxAddUserModal)

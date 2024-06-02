@@ -1,7 +1,8 @@
 package users
 
 import (
-	"goth/internal/store/mockstore"
+	"goth/internal/store"
+	"goth/internal/store/dbstore"
 	"goth/internal/templates/admin"
 	"goth/internal/validator"
 	v "goth/internal/validator"
@@ -12,10 +13,10 @@ import (
 )
 
 type ListUsers struct {
-	userStore *mockstore.UserStore
+	userStore store.UserStore
 }
 
-func NewListUsersHandler(us *mockstore.UserStore) *ListUsers {
+func NewListUsersHandler(us store.UserStore) *ListUsers {
 	return &ListUsers{us}
 }
 
@@ -36,7 +37,7 @@ func (thing *ListUsers) HxAddUserModal(w http.ResponseWriter, r *http.Request) {
 
 func (thing *ListUsers) HxEditUserModal(w http.ResponseWriter, r *http.Request) {
 	email := chi.URLParam(r, "email")
-	user, _ := thing.userStore.GetUser(email)
+	user, _ := thing.userStore.GetUserByEmail(email)
 
 	uv := admin.UserValidations{
 		v.New("name", user.Name, nil),
@@ -83,7 +84,7 @@ func (thing *ListUsers) HxCreateUser(w http.ResponseWriter, r *http.Request) {
 
 func (thing *ListUsers) existingUser(val string) v.VResult {
 
-	_, err := thing.userStore.GetUser(val)
+	_, err := thing.userStore.GetUserByEmail(val)
 	if err != nil {
 		return v.VResult{false, "email must exist "}
 
@@ -94,6 +95,8 @@ func (thing *ListUsers) existingUser(val string) v.VResult {
 func (thing *ListUsers) HxUpdateUser(w http.ResponseWriter, r *http.Request) {
 	// first validate
 	// validate fail, return form with error
+	idStr := r.FormValue("id")
+	idVal, _ := strconv.Atoi(idStr)
 	nameVal := r.FormValue("name")
 	emailVal := r.FormValue("email")
 	pwdVal := r.FormValue("password")
@@ -109,7 +112,7 @@ func (thing *ListUsers) HxUpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	// validation pass, create user, return empty form
 	if validator.ValidationOk(&validations) {
-		thing.userStore.UpdateUser(nameVal, emailVal, pwdVal)
+		thing.userStore.UpdateUser(nameVal, emailVal, pwdVal, int64(idVal))
 		w.Header().Set("HX-Trigger", `{"close-global-modal-form": [{"foo": 1, "message": "User `+emailVal+` Edited and saved", "tags": "Success!"}]}`)
 	}
 
@@ -117,9 +120,11 @@ func (thing *ListUsers) HxUpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (thing *ListUsers) HxDeleteUser(w http.ResponseWriter, r *http.Request) {
-	emailVal := chi.URLParam(r, "email")
-	thing.userStore.DeleteUser(emailVal)
-	w.Header().Set("HX-Trigger", `{"close-global-modal-form": [{"foo": 1, "message": "User `+emailVal+` deleted", "tags": "Success!"}]}`)
+	idStr := chi.URLParam(r, "id")
+	idVal, _ := strconv.Atoi(idStr)
+	thing.userStore.DeleteUser(int64(idVal))
+	fetchedUser, _ := thing.userStore.GetUserById(int64(idVal))
+	w.Header().Set("HX-Trigger", `{"close-global-modal-form": [{"foo": 1, "message": "User `+fetchedUser.Email.String+` deleted", "tags": "Success!"}]}`)
 
 }
 
@@ -129,6 +134,6 @@ func (thing *ListUsers) HxListUsers(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	paginator := mockstore.NewUserPagination("/admin/users/hx/list", thing.userStore, pgNum)
+	paginator := dbstore.NewUserPagination("/admin/users/hx/list", thing.userStore, pgNum)
 	admin.UserTableMain(paginator).Render(r.Context(), w)
 }

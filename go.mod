@@ -11,7 +11,6 @@ require (
 	github.com/go-chi/jwtauth/v5 v5.3.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/jackc/pgx/v5 v5.6.0
-	github.com/brianvoe/gofakeit/v7 v7.0.3
 
 )
 

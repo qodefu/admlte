@@ -169,6 +169,24 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 	return i, err
 }
 
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, name, email, password, created FROM users 
+WHERE email = $1 LIMIT 1
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email pgtype.Text) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Password,
+		&i.Created,
+	)
+	return i, err
+}
+
 const getUserClient = `-- name: GetUserClient :one
 SELECT u.id, c.name FROM clients c 
 JOIN users u
@@ -186,6 +204,18 @@ func (q *Queries) GetUserClient(ctx context.Context, id int64) (GetUserClientRow
 	var i GetUserClientRow
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err
+}
+
+const getUserCount = `-- name: GetUserCount :one
+SELECT count(*)
+FROM users
+`
+
+func (q *Queries) GetUserCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, getUserCount)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
 const listAppt = `-- name: ListAppt :many
@@ -246,12 +276,17 @@ func (q *Queries) ListClients(ctx context.Context, dollar_1 interface{}) ([]Clie
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, name, email, password, created FROM  users 
-ORDER BY id ASC
+SELECT id, name, email, password, created FROM users 
+ORDER BY id ASC OFFSET $2 LIMIT $1
 `
 
-func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
-	rows, err := q.db.Query(ctx, listUsers)
+type ListUsersParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsers, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

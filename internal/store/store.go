@@ -18,10 +18,12 @@ type UserStore interface {
 	// GetUser is a method to retrieve a user by their email.
 	// It returns a pointer to a User struct and an error.
 	// The error should be non-nil if the user cannot be found or if there's another issue retrieving the user.
-	GetUser(email string) (*models.User, error)
-	DeleteUser(email string) error
-	UpdateUser(name, email string, password string) error
-	ListUsers() []models.User
+	GetUserByEmail(email string) (models.User, error)
+	GetUserById(id int64) (models.User, error)
+	DeleteUser(id int64) error
+	UpdateUser(name, email, password string, id int64) error
+	ListUsers(offset, limit int) []models.User
+	GetUserCount() int64
 }
 
 type ApptStore interface {

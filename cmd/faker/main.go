@@ -28,7 +28,6 @@ func (thing Errors) Error() string {
 }
 
 func fakeUsers() error {
-
 	_, err := conn.Exec(ctx, "DELETE FROM users;")
 	if err != nil {
 		return err
@@ -107,11 +106,7 @@ func run(host, user, pwd, db string, port int) error {
 	usrerr := fakeUsers()
 	clids, clierr := fakeClis()
 	appterr := fakeAppts(clids)
-	// list all authors
-	authors, listerr := queries.ListUsers(ctx)
-	for _, u := range authors {
-		fmt.Println(u)
-	}
+
 	// log.Println(authors)
 	// // get the author we just inserted
 	// fetchedAuthor, err := queries.GetUser(ctx, insertedAuthor.ID)
@@ -121,7 +116,7 @@ func run(host, user, pwd, db string, port int) error {
 
 	// // prints true
 	// log.Println(reflect.DeepEqual(insertedAuthor, fetchedAuthor))
-	return errors.Join(usrerr, clierr, appterr, listerr)
+	return errors.Join(usrerr, clierr, appterr)
 }
 
 func main() {
