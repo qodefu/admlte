@@ -1,4 +1,4 @@
-package  admin
+package  users 
 
 import m "goth/internal/middleware"
 import v "goth/internal/validator"
@@ -142,6 +142,16 @@ templ UserContent(paginator store.Pagination[models.User]) {
 			<div class="modal-content" id="globalModalContent"></div>
 		</div>
 	</div>
+	<script>
+			htmx.on('close-global-modal-form', event => {
+		  	htmx.ajax(
+			'GET',
+			'/admin/users/hx/list?page=1', {
+			  target: '#userTableMain',
+			  swap:'outerHTML'
+			});
+		})
+	</script>
 }
 
 templ UserForm(uvs UserValidations, edit bool) {
@@ -215,16 +225,6 @@ templ UserForm(uvs UserValidations, edit bool) {
 			}
 		</div>
 	</form>
-	// <script>
-	// 		htmx.on('close-global-modal-form', event => {
-	// 	  	htmx.ajax(
-	// 		'GET',
-	// 		'/admin/users/hx/list?page=1', {
-	// 		  target: '#userTableMain',
-	// 		  swap:'outerHTML'
-	// 		});
-	// 	})
-	// </script>
 }
 
 templ UserTable(paginator store.Pagination[models.User]) {

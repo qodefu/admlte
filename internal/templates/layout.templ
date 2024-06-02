@@ -343,15 +343,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
 				  	$('#globalModalForm').modal('hide');
 					console.log(msg)
 				  	toastr.success(msg.message + msg.foo, msg.tags)
-					if (msg.hxUrl) {
-				  		htmx.ajax(
-						'GET',
-						msg.hxUrl, {
-					  	target: msg.hxTarget,
-					  	swap:'outerHTML'
-						});
-
-					}
+					// if (msg.hxUrl) {
+				  	// 	htmx.ajax(
+					// 	'GET',
+					// 	msg.hxUrl, {
+					//   	target: msg.hxTarget,
+					//   	swap:'outerHTML'
+					// 	});
+					// }
 
 				} )
 				$('#globalModalForm').on('hidden.bs.modal', function (e) {
