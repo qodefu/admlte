@@ -1,6 +1,7 @@
 package components
 
 import "goth/internal/middleware"
+import "fmt"
 
 func Push(name string) templ.Component{
     return templ.ComponentFunc(func(ctx context.Context, w io.Writer) error {
@@ -23,18 +24,35 @@ func Stack(name string) templ.Component {
     })
 }
 
-
-templ DatePicker() {
-	<div>
-		<input type="text" class="form-control datetimpicker-input" data-toggle="datetimepicker" data-target="#datetimepicker5" id="datetimepicker5"/>
-	</div>
-
-    @Push("js") { 
-        <script type="text/javascript">
-            $("#datetimepicker5").datetimepicker({
-                format: "LT"
-            })
-        </script>
-    }
+func Js(script string) templ.Component {
+    return templ.ComponentFunc(func(ctx context.Context, w io.Writer) error {
+		_, err := io.WriteString(w, script)
+        return err
+    })
 }
 
+type srvData struct {
+    PickerId string
+
+}
+
+templ DatePicker(name ,id string) {
+	<input 
+           type="text" 
+           name={name} 
+           class="form-control datetimpicker-input" 
+           data-toggle="datetimepicker" 
+           data-target={"#"+id}
+           id={id}/>
+// This is ugly, I am sorry....
+    @Push("js") {
+        @Js(fmt.Sprintf(`
+        <script type="text/javascript">
+            $("#%s").datetimepicker({
+                format: "L"
+            })
+        </script>
+       `, id))
+    }
+
+}

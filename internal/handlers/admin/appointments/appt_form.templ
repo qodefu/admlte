@@ -14,7 +14,8 @@ type serverData struct {
 templ ApptForm(clients []models.Client) {
 	<div class="card card-default">
 
-@components.DatePicker()
+@components.DatePicker("apptStartTime",  idGen.Id("apptStartTime"))
+@components.DatePicker("apptEndTime",  idGen.Id("apptEndTime"))
 		<form hx-post={config.Routes().Admin.Appt.SaveNew} autocomplete="off">
 		<div class="content-header">
 			<div class="container-fluid">
