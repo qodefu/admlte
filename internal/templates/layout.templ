@@ -2,6 +2,7 @@
 package templates
 
 import m "goth/internal/middleware"
+import "goth/internal/components"
 
 var asset = "/static/backend/"
 
@@ -363,6 +364,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
 			})
 
 			</script>
+			<script src="https://cdn.ckeditor.com/ckeditor5/25.0.0/classic/ckeditor.js"> </script>
+			@components.Stack("js")
 		</body>
 	</html>
 }

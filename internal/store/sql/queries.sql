@@ -7,8 +7,11 @@ WHERE id = $1 LIMIT 1;
 SELECT count(id) FROM appointments;
 
 -- name: ListAppt :many
-SELECT * FROM  appointments 
-ORDER BY id;
+SELECT c.name, a.*  
+FROM  appointments a
+JOIN clients c
+  ON a.client_id = c.id
+ORDER BY a.id;
 
 -- name: CreateAppt :one
 INSERT INTO appointments(
@@ -43,7 +46,7 @@ WHERE id = $1 LIMIT 1;
 
 -- name: ListClients :many
 SELECT * FROM  clients 
-ORDER BY $1;
+ORDER BY id;
 
 -- name: CreateClient :one
 INSERT INTO  clients(

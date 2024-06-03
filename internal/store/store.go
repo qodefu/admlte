@@ -2,7 +2,10 @@
 // In this context, it focuses on user-related data operations.
 package store
 
-import "goth/internal/store/models"
+import (
+	"goth/internal/store/models"
+	"time"
+)
 
 // User struct defines the structure for user information within the application.
 // It includes basic attributes like email and password.
@@ -27,5 +30,10 @@ type UserStore interface {
 }
 
 type ApptStore interface {
-	ListAppts() []models.Appointment
+	ListAppts() []models.ListApptRow
+	CreateAppt(id int32, apptTime time.Time, status, note string) (models.Appointment, error)
+}
+
+type ClientStore interface {
+	ListClients() []models.Client
 }

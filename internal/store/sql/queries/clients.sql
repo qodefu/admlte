@@ -11,7 +11,7 @@ WHERE id = $1 LIMIT 1;
 
 -- name: ListClients :many
 SELECT * FROM  clients 
-ORDER BY $1;
+ORDER BY id;
 
 -- name: CreateClient :one
 INSERT INTO  clients(

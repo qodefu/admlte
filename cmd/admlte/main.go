@@ -46,7 +46,6 @@ func main() {
 	// Initialize structured JSON logging.
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	// Initialize the Chi router.
 	r := chi.NewRouter()
 
 	// Setup the user store and token authentication with a secret key.
@@ -61,6 +60,7 @@ func main() {
 	queries := models.New(conn)
 	userStore := dbstore.NewUserStore(queries)
 	apptStore := dbstore.NewApptStore(queries)
+	cliStore := dbstore.NewCliStore(queries)
 	tokenAuth := tokenauth.NewTokenAuth(tokenauth.NewTokenAuthParams{
 		SecretKey: []byte("secret"),
 	})
@@ -104,7 +104,7 @@ func main() {
 
 		// Appointments
 		r.Group(func(r chi.Router) {
-			apptsHandler := appts.NewApptsHandler(apptStore)
+			apptsHandler := appts.NewApptsHandler(apptStore, cliStore)
 
 			r.Get(cfgRoutes.Admin.Appt.Base, func(w http.ResponseWriter, r *http.Request) {
 
@@ -112,6 +112,7 @@ func main() {
 				templates.Layout(appts.ApptContent(pgtor), "Appointment").Render(r.Context(), w)
 			})
 			r.Get(cfgRoutes.Admin.Appt.Create, handlers.Func(apptsHandler.CreateForm))
+			r.Post(cfgRoutes.Admin.Appt.SaveNew, handlers.Func(apptsHandler.SaveNew))
 		})
 
 		// Dashboard

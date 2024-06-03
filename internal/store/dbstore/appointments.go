@@ -4,15 +4,27 @@ import (
 	"context"
 	"goth/internal/store"
 	"goth/internal/store/models"
+	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type ApptStore struct {
 	appts *models.Queries // Slice of User structs to store user data.
 }
 
-func (thing ApptStore) ListAppts() []models.Appointment {
+func (thing ApptStore) ListAppts() []models.ListApptRow {
 	ret, _ := thing.appts.ListAppt(context.Background())
 	return ret
+}
+
+func (thing ApptStore) CreateAppt(id int32, apptTime time.Time, status, note string) (models.Appointment, error) {
+	return thing.appts.CreateAppt(context.Background(), models.CreateApptParams{
+		ClientID: pgtype.Int4{Int32: id, Valid: true},
+		ApptTime: pgtype.Timestamp{Time: apptTime, Valid: true},
+		Status:   pgtype.Text{String: status, Valid: true},
+		Note:     pgtype.Text{String: note, Valid: true},
+	})
 }
 
 // NewUserStore initializes and returns a new instance of UserStore.
@@ -24,12 +36,12 @@ func NewApptStore(queries *models.Queries) *ApptStore {
 }
 
 type ApptPagination struct {
-	store.AbstractPagination[models.Appointment]
+	store.AbstractPagination[models.ListApptRow]
 	q *models.Queries
 }
 
-func NewApptPagination(url string, queries *models.Queries, pg int) store.Pagination[models.Appointment] {
-	super := store.MkAbsPgtor[models.Appointment](5, pg, url)
+func NewApptPagination(url string, queries *models.Queries, pg int) store.Pagination[models.ListApptRow] {
+	super := store.MkAbsPgtor[models.ListApptRow](5, pg, url)
 	ret := ApptPagination{
 		super,
 		queries,
@@ -38,7 +50,7 @@ func NewApptPagination(url string, queries *models.Queries, pg int) store.Pagina
 	return ret
 }
 
-func (thing ApptPagination) Items() []models.Appointment {
+func (thing ApptPagination) Items() []models.ListApptRow {
 	ret, _ := thing.q.ListAppt(context.Background())
 	return ret
 }

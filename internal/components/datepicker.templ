@@ -1,0 +1,40 @@
+package components
+
+import "goth/internal/middleware"
+
+func Push(name string) templ.Component{
+    return templ.ComponentFunc(func(ctx context.Context, w io.Writer) error {
+        reqscope := middleware.ReqScope(ctx)
+        childcomp := templ.GetChildren(ctx)
+        reqscope.Push(name, childcomp)
+		_, err := io.WriteString(w, "")
+		return err
+	})
+}
+
+func Stack(name string) templ.Component {
+    return templ.ComponentFunc(func(ctx context.Context, w io.Writer) error {
+        reqscope := middleware.ReqScope(ctx)
+        for _, c := range reqscope.Stack(name) {
+            c.Render(ctx, w)
+        }
+
+        return nil
+    })
+}
+
+
+templ DatePicker() {
+	<div>
+		<input type="text" class="form-control datetimpicker-input" data-toggle="datetimepicker" data-target="#datetimepicker5" id="datetimepicker5"/>
+	</div>
+
+    @Push("js") { 
+        <script type="text/javascript">
+            $("#datetimepicker5").datetimepicker({
+                format: "LT"
+            })
+        </script>
+    }
+}
+

@@ -57,7 +57,7 @@ func (thing ApptPagination) PerPage() int {
 	return 5
 }
 
-func (thing ApptPagination) Items() []models.Appointment {
+func (thing ApptPagination) Items() []models.ListApptRow {
 	return thing.store.ListAppts()
 }
 
@@ -73,7 +73,7 @@ func (thing ApptPagination) PreviousPageUrl() string {
 	return "#"
 }
 
-func NewApptPagination(store store.ApptStore) store.Pagination[models.Appointment] {
+func NewApptPagination(store store.ApptStore) store.Pagination[models.ListApptRow] {
 	return ApptPagination{
 		store: store,
 	}

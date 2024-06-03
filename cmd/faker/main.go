@@ -72,13 +72,14 @@ func fakeAppts(clids []int) error {
 	if err != nil {
 		return err
 	}
+	stat := []string{"Open", "Closed", "Pending"}
 	for i := 0; i < 10; i++ {
 		// create an user
 		_, err := queries.CreateAppt(ctx, models.CreateApptParams{
 			ClientID: pgtype.Int4{Int32: int32(gofakeit.RandomInt(clids)), Valid: true},
 			ApptTime: pgtype.Timestamp{Time: gofakeit.Date(), Valid: true},
 			Note:     pgtype.Text{String: gofakeit.Paragraph(2, 1, 35, " "), Valid: true},
-			Status:   pgtype.Text{String: gofakeit.BS(), Valid: true},
+			Status:   pgtype.Text{String: gofakeit.RandomString(stat), Valid: true},
 		})
 		if err != nil {
 			return err

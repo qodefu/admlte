@@ -230,20 +230,34 @@ func (q *Queries) GetUserCount(ctx context.Context) (int64, error) {
 }
 
 const listAppt = `-- name: ListAppt :many
-SELECT id, client_id, appt_time, status, note, created FROM  appointments 
-ORDER BY id
+SELECT c.name, a.id, a.client_id, a.appt_time, a.status, a.note, a.created  
+FROM  appointments a
+JOIN clients c
+  ON a.client_id = c.id
+ORDER BY a.id
 `
 
-func (q *Queries) ListAppt(ctx context.Context) ([]Appointment, error) {
+type ListApptRow struct {
+	Name     string
+	ID       int32
+	ClientID pgtype.Int4
+	ApptTime pgtype.Timestamp
+	Status   pgtype.Text
+	Note     pgtype.Text
+	Created  pgtype.Timestamp
+}
+
+func (q *Queries) ListAppt(ctx context.Context) ([]ListApptRow, error) {
 	rows, err := q.db.Query(ctx, listAppt)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Appointment
+	var items []ListApptRow
 	for rows.Next() {
-		var i Appointment
+		var i ListApptRow
 		if err := rows.Scan(
+			&i.Name,
 			&i.ID,
 			&i.ClientID,
 			&i.ApptTime,
@@ -263,11 +277,11 @@ func (q *Queries) ListAppt(ctx context.Context) ([]Appointment, error) {
 
 const listClients = `-- name: ListClients :many
 SELECT id, name, created FROM  clients 
-ORDER BY $1
+ORDER BY id
 `
 
-func (q *Queries) ListClients(ctx context.Context, dollar_1 interface{}) ([]Client, error) {
-	rows, err := q.db.Query(ctx, listClients, dollar_1)
+func (q *Queries) ListClients(ctx context.Context) ([]Client, error) {
+	rows, err := q.db.Query(ctx, listClients)
 	if err != nil {
 		return nil, err
 	}
