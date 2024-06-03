@@ -24,9 +24,9 @@ func Stack(name string) templ.Component {
     })
 }
 
-func Js(script string) templ.Component {
+func Js(script string, a ...any) templ.Component {
     return templ.ComponentFunc(func(ctx context.Context, w io.Writer) error {
-		_, err := io.WriteString(w, script)
+		_, err := io.WriteString(w, fmt.Sprintf(script, a...))
         return err
     })
 }
@@ -44,12 +44,33 @@ templ DatePicker(name ,id string) {
            data-toggle="datetimepicker" 
            data-target={"#"+id}
            id={id}/>
-// This is ugly, I am sorry....
     @Push("js") {
-        @Js(fmt.Sprintf(`
+// This is ugly, I am sorry....
+        @Js(`
         <script type="text/javascript">
             $("#%s").datetimepicker({
                 format: "L"
+            })
+        </script>
+       `, id))
+    }
+
+}
+
+templ TimePicker(name ,id string) {
+	<input 
+           type="text" 
+           name={name} 
+           class="form-control datetimpicker-input" 
+           data-toggle="datetimepicker" 
+           data-target={"#"+id}
+           id={id}/>
+    @Push("js") {
+// This is ugly, I am sorry....
+        @Js(`
+        <script type="text/javascript">
+            $("#%s").datetimepicker({
+                format: "LT"
             })
         </script>
        `, id))
