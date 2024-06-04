@@ -2,6 +2,7 @@ package appts
 
 import "goth/internal/store/models"
 import "fmt"
+// import m "goth/internal/middleware"
 import "goth/internal/config"
 import "goth/internal/components"
 
@@ -11,7 +12,7 @@ type serverData struct {
     SubmitBtnRef string 
 	NoteRef string
 }
-templ ApptForm(clients []models.Client, validation ApptFormValidation) {
+templ ApptForm(clients []models.Client, avalid ApptFormValidation) {
 	<div class="card card-default">
 
 		<form hx-post={config.Routes().Admin.Appt.SaveNew} hx-swap="outerHTML"  autocomplete="off">
@@ -40,40 +41,45 @@ templ ApptForm(clients []models.Client, validation ApptFormValidation) {
 				<div class="col-md-6">
 					<div class="form-group">
 						<label for={ idGen.Id("client_name") }>Client:</label>
-						<select name="clientId" id={ idGen.Id("client_name") } class="custom-select my-1 mr-sm-2">
+						<select name="clientId" id={ idGen.Id("client_name") } class={"custom-select", "my-1" ,"mr-sm-2", avalid.ClientId.ErrorClasses("is-invalid") }>
 							<option value="" selected>Choose...</option>
 							for _, e := range clients {
 
-								<option value={fmt.Sprintf("%d", e.ID)}>{e.Name}</option>
+								<option value={fmt.Sprintf("%d", e.ID)}
+									if fmt.Sprintf("%d", e.ID) == avalid.ClientId.Value {
+										selected
+									}
+								
+								>{e.Name}</option>
 							}
 						</select>
-						<div class="invalid-feedback"></div>
+						<div class="invalid-feedback">{avalid.ClientId.Result.ErrorMsg}</div>
 					</div>
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-md-6">
 					<div class="form-group">
-						<label for={ idGen.Id("appt_date") }>Date:</label>
-							<div class="input-group-append">
-								@components.DatePicker("appt_date", idGen.Id("appt_date"))
+						<label for={ idGen.Id("appt_date") }>Appointment Date:</label>
+							<div class="input-group mb-3">
 								<div class="input-group-text">
 									<i class="fa fa-calendar"></i>
 								</div>
+								@components.DatePicker(avalid.Date)
+								<div class="invalid-feedback">{avalid.Date.Result.ErrorMsg}</div>
 							</div>
-						<div class="invalid-feedback"></div>
 					</div>
 				</div>
 				<div class="col-md-6">
 					<div class="form-group">
 						<label for={ idGen.Id("appt_time") }>Appointment Time:</label>
-							<div class="input-group-append" >
-								@components.TimePicker("appt_time", idGen.Id("appt_time"))
+							<div class="input-group mb-3" >
 								<div class="input-group-text">
 									<i class="far fa-clock"></i>
 								</div>
+								@components.TimePicker(avalid.Time)
+								<div class="invalid-feedback" >{avalid.Time.Result.ErrorMsg}</div>
 							</div>
-						<div class="invalid-feedback"></div>
 					</div>
 				</div>
 			</div>
@@ -96,12 +102,16 @@ templ ApptForm(clients []models.Client, validation ApptFormValidation) {
 				<div class="col-md-6">
 					<div class="form-group">
 						<label for={ idGen.Id("status") }>Status:</label>
-						<select name="status" id={ idGen.Id("status") } class="custom-select my-1 mr-sm-2">
-							<option value="" selected>Choose...</option>
-								<option value="SCHEDULED">Scheduled</option>
-								<option value="CLOSED">Closed</option>
+						<select name="appt_status" id={ idGen.Id("appt_status") } class={"custom-select", "my-1", "mr-sm-2", avalid.Status.ErrorClasses("is-invalid")}>
+							<option value="">Choose...</option>
+								<option value="SCHEDULED" 
+									if avalid.Status.Value == "SCHEDULED" { selected }
+								>Scheduled</option>
+								<option value="CLOSED" 
+									if avalid.Status.Value == "CLOSED" { selected }
+								>Closed</option>
 						</select>
-						<div class="invalid-feedback"></div>
+						<div class="invalid-feedback">{avalid.Status.Result.ErrorMsg}</div>
 					</div>
 				</div>
 			</div>

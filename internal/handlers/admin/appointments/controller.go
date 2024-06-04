@@ -19,11 +19,11 @@ type ApptFormValidation struct {
 
 func newValidation(cliIdStr, apptDate, apptTime, note, status string) ApptFormValidation {
 	return ApptFormValidation{
-		ClientId: validator.New("clientId", cliIdStr, validator.NotEmpty("Client")),
-		Date:     validator.New("appt_date", apptDate, validator.NotEmpty("Appointment Date")),
-		Time:     validator.New("appt_time", apptTime, validator.NotEmpty("Appointment Time")),
-		Note:     validator.New("note", note),
-		Status:   validator.New("status", status, validator.NotEmpty("Status")),
+		ClientId: validator.New("clientId", cliIdStr, &idGen, validator.NotEmpty("Client")),
+		Date:     validator.New("appt_date", apptDate, &idGen, validator.NotEmpty("Appointment Date")),
+		Time:     validator.New("appt_time", apptTime, &idGen, validator.NotEmpty("Appointment Time")),
+		Note:     validator.New("note", note, &idGen),
+		Status:   validator.New("status", status, &idGen, validator.NotEmpty("Status")),
 	}
 }
 
@@ -52,13 +52,13 @@ func (thing ApptHandler) SaveNew(w http.ResponseWriter, r *http.Request) error {
 	apptStatus := r.FormValue("appt_status")
 	note := r.FormValue("note")
 
-	av := newValidation(cliIdStr, apptDate, apptTime, apptStatus, note)
+	av := newValidation(cliIdStr, apptDate, apptTime, note, apptStatus)
 	combineTime := apptDate + " " + apptTime
 	validator.ValidateFields(&av)
 
 	if !validator.ValidationOk(&av) {
 		clients := thing.cliRepo.ListClients()
-		templates.Layout(ApptForm(clients, av), "Appt Form").Render(r.Context(), w)
+		ApptForm(clients, av).Render(r.Context(), w)
 		// return errors.New("validation failed")
 	} else {
 		t, _ := time.Parse("01/02/2006 3:04 PM", combineTime)

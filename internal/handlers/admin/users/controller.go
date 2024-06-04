@@ -3,6 +3,7 @@ package users
 import (
 	"goth/internal/store"
 	"goth/internal/store/dbstore"
+	"goth/internal/utils"
 	"goth/internal/validator"
 	v "goth/internal/validator"
 	"net/http"
@@ -14,6 +15,26 @@ import (
 type ListUsers struct {
 	userStore store.UserStore
 }
+
+type UserValidations struct {
+	Id                   v.Validation
+	Name                 v.Validation
+	Email                v.Validation
+	Password             v.Validation
+	PasswordConfirmation v.Validation
+}
+
+func newValidation(name, email, pwd, pwdConfirm string) UserValidations {
+	return UserValidations{
+		Id:                   validator.New("id", "", &idGen),
+		Name:                 validator.New("name", name, &idGen),
+		Email:                validator.New("email", email, &idGen),
+		Password:             validator.New("password", pwd, &idGen),
+		PasswordConfirmation: validator.New("passwordConfirmation", pwdConfirm, &idGen),
+	}
+}
+
+var idGen = utils.NewIdGen("user")
 
 func NewListUsersHandler(us store.UserStore) *ListUsers {
 	return &ListUsers{us}
@@ -38,13 +59,14 @@ func (thing *ListUsers) HxEditUserModal(w http.ResponseWriter, r *http.Request) 
 	idVal, _ := strconv.Atoi(idStr)
 	user, _ := thing.userStore.GetUserById(int64(idVal))
 
-	uv := UserValidations{
-		v.New("id", idStr, nil),
-		v.New("name", user.Name, nil),
-		v.New("email", user.Email.String, nil),
-		v.New("password", "", nil),
-		v.New("passwordConfirmation", "", nil),
-	}
+	uv := newValidation(user.Name, user.Email.String, "", "")
+	// uv := UserValidations{
+	// 	v.New("id", idStr, nil),
+	// 	v.New("name", user.Name, nil),
+	// 	v.New("email", user.Email.String, nil),
+	// 	v.New("password", "", nil),
+	// 	v.New("passwordConfirmation", "", nil),
+	// }
 
 	w.Header().Set("HX-Trigger", "show-global-modal-form")
 	UserModalContent(uv, true).Render(r.Context(), w)
@@ -71,12 +93,17 @@ func (thing *ListUsers) HxCreateUser(w http.ResponseWriter, r *http.Request) {
 	pwdVal := r.FormValue("password")
 	pwdConfirm := r.FormValue("passwordConfirmation")
 
-	validations := UserValidations{
-		Name:                 v.New("name", nameVal, v.NotEmpty("Name")),
-		Email:                v.New("email", emailVal, v.NotEmpty("Email"), v.EmailFmt),
-		Password:             v.New("password", pwdVal, v.NotEmpty("Password")),
-		PasswordConfirmation: v.New("passwordConfirmation", pwdConfirm, v.NotEmpty("PasswordConfirmation"), v.PasswordMatch(pwdVal)),
-	}
+	validations := newValidation(nameVal, emailVal, pwdVal, pwdConfirm)
+	validations.Name.Install(v.NotEmpty("Name field"))
+	validations.Email.Install(v.NotEmpty("Email field"), v.EmailFmt)
+	validations.Password.Install(v.NotEmpty("Password field"))
+	validations.PasswordConfirmation.Install(v.NotEmpty("Password Confirmation"), v.PasswordMatch(pwdVal))
+	// validations := UserValidations{
+	// 	Name:                 v.New("name", nameVal, v.NotEmpty("Name")),
+	// 	Email:                v.New("email", emailVal, v.NotEmpty("Email"), v.EmailFmt),
+	// 	Password:             v.New("password", pwdVal, v.NotEmpty("Password")),
+	// 	PasswordConfirmation: v.New("passwordConfirmation", pwdConfirm, v.NotEmpty("PasswordConfirmation"), v.PasswordMatch(pwdVal)),
+	// }
 	validator.ValidateFields(&validations)
 
 	// validation pass, create user, return empty form
@@ -108,12 +135,18 @@ func (thing *ListUsers) HxUpdateUser(w http.ResponseWriter, r *http.Request) {
 	pwdVal := r.FormValue("password")
 	pwdConfirm := r.FormValue("passwordConfirmation")
 
-	validations := UserValidations{
-		Name:                 v.New("name", nameVal, v.NotEmpty("Name")),
-		Email:                v.New("email", emailVal, v.NotEmpty("Email"), v.EmailFmt, thing.existingUser),
-		Password:             v.New("password", pwdVal),
-		PasswordConfirmation: v.New("passwordConfirmation", pwdConfirm, v.PasswordMatch(pwdVal)),
-	}
+	validations := newValidation(nameVal, emailVal, pwdVal, pwdConfirm)
+	validations.Name.Install(v.NotEmpty("Name field"))
+	validations.Email.Install(v.NotEmpty("Email field"), v.EmailFmt, thing.existingUser)
+	// validations.Password.Install(v.NotEmpty("Name field"))
+	validations.PasswordConfirmation.Install(v.PasswordMatch(pwdVal))
+
+	// validations := UserValidations{
+	// 	Name:                 v.New("name", nameVal, v.NotEmpty("Name")),
+	// 	Email:                v.New("email", emailVal, v.NotEmpty("Email"), v.EmailFmt, thing.existingUser),
+	// 	Password:             v.New("password", pwdVal),
+	// 	PasswordConfirmation: v.New("passwordConfirmation", pwdConfirm, v.PasswordMatch(pwdVal)),
+	// }
 	validator.ValidateFields(&validations)
 
 	// validation pass, create user, return empty form

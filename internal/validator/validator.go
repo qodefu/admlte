@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"fmt"
+	"goth/internal/utils"
 	"reflect"
 	"strings"
 )
@@ -11,23 +13,45 @@ type VResult struct {
 }
 type Validator func(v string) VResult
 type Validators []Validator
+
 type Validation struct {
 	Key        string
 	Value      string
 	Validators Validators
 	Result     VResult
+	idGen      *utils.IdGen
+}
+
+func (thing *Validation) Install(vtors ...Validator) {
+	thing.Validators = append(vtors, emptyValidator)
+}
+
+func (thing Validation) UUIDRef() string {
+	return thing.idGen.IdRef(thing.Key)
+}
+
+func (thing Validation) UUID() string {
+	return thing.idGen.Id(thing.Key)
+}
+
+func (thing Validation) ErrorClasses(classes ...string) []string {
+	if !thing.Result.Valid {
+		return classes
+	}
+	return nil
 }
 
 func emptyValidator(v string) VResult {
 	return VResult{true, ""}
 
 }
-func New(key, val string, vtors ...Validator) Validation {
+func New(key, val string, idGen *utils.IdGen, vtors ...Validator) Validation {
 	return Validation{
 		Key:        key,
 		Value:      val,
 		Validators: append(vtors, emptyValidator),
 		Result:     VResult{true, ""},
+		idGen:      idGen,
 	}
 
 }
@@ -93,6 +117,7 @@ func (thing *Validation) Validate() {
 
 func NotEmpty(msg string) Validator {
 	return func(value string) VResult {
+		fmt.Println("validating value: ", value)
 		if len(value) > 0 {
 			return VResult{true, ""}
 		}

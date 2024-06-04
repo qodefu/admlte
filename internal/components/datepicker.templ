@@ -1,6 +1,7 @@
 package components
 
 import "goth/internal/middleware"
+import "goth/internal/validator"
 import "fmt"
 
 func Push(name string) templ.Component{
@@ -36,44 +37,46 @@ type srvData struct {
 
 }
 
-templ DatePicker(name ,id string) {
+templ DatePicker(v validator.Validation) {
 	<input 
            type="text" 
-           name={name} 
-           class="form-control datetimpicker-input" 
+           name={v.Key} 
+           value={v.Value}
+           class={"form-control", "datetimpicker-input", v.ErrorClasses("is-invalid") }
            data-toggle="datetimepicker" 
-           data-target={"#"+id}
-           id={id}/>
+           data-target={v.UUIDRef()}
+           id={v.UUID()}/>
     @Push("js") {
 // This is ugly, I am sorry....
         @Js(`
         <script type="text/javascript">
-            $("#%s").datetimepicker({
+            $("%s").datetimepicker({
                 format: "L"
             })
         </script>
-       `, id))
+       `, v.UUIDRef()))
     }
 
 }
 
-templ TimePicker(name ,id string) {
+templ TimePicker(v validator.Validation) {
 	<input 
            type="text" 
-           name={name} 
-           class="form-control datetimpicker-input" 
+           name={v.Key} 
+           value={v.Value}
+           class={"form-control", "datetimpicker-input", v.ErrorClasses("is-invalid") }
            data-toggle="datetimepicker" 
-           data-target={"#"+id}
-           id={id}/>
+           data-target={v.UUIDRef()}
+           id={v.UUID()}/>
     @Push("js") {
 // This is ugly, I am sorry....
         @Js(`
         <script type="text/javascript">
-            $("#%s").datetimepicker({
+            $("%s").datetimepicker({
                 format: "LT"
             })
         </script>
-       `, id))
+       `, v.UUIDRef()))
     }
 
 }
