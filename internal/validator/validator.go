@@ -18,11 +18,15 @@ type Validation struct {
 	Result     VResult
 }
 
+func emptyValidator(v string) VResult {
+	return VResult{true, ""}
+
+}
 func New(key, val string, vtors ...Validator) Validation {
 	return Validation{
 		Key:        key,
 		Value:      val,
-		Validators: vtors,
+		Validators: append(vtors, emptyValidator),
 		Result:     VResult{true, ""},
 	}
 

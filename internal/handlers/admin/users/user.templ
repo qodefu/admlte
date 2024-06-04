@@ -2,6 +2,7 @@ package  users
 
 import m "goth/internal/middleware"
 import v "goth/internal/validator"
+import "goth/internal/components"
 import "goth/internal/config"
 import "fmt"
 import "goth/internal/store"
@@ -142,16 +143,18 @@ templ UserContent(paginator store.Pagination[models.User]) {
 			<div class="modal-content" id="globalModalContent"></div>
 		</div>
 	</div>
-	<script>
+	@components.Push("js") {
+		<script>
 			htmx.on('close-global-modal-form', event => {
-		  	htmx.ajax(
-			'GET',
-			'/admin/users/hx/list?page=1', {
-			  target: '#userTableMain',
-			  swap:'outerHTML'
-			});
-		})
-	</script>
+			  	htmx.ajax(
+				'GET',
+				'/admin/users/hx/list?page=1', {
+				  target: '#userTableMain',
+				  swap:'outerHTML'
+				});
+			})
+		</script>
+	}
 }
 
 templ UserForm(uvs UserValidations, edit bool) {

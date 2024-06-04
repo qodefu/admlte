@@ -11,12 +11,10 @@ type serverData struct {
     SubmitBtnRef string 
 	NoteRef string
 }
-templ ApptForm(clients []models.Client) {
+templ ApptForm(clients []models.Client, validation ApptFormValidation) {
 	<div class="card card-default">
 
-@components.DatePicker("apptStartTime",  idGen.Id("apptStartTime"))
-@components.TimePicker("apptEndTime",  idGen.Id("apptEndTime"))
-		<form hx-post={config.Routes().Admin.Appt.SaveNew} autocomplete="off">
+		<form hx-post={config.Routes().Admin.Appt.SaveNew} hx-swap="outerHTML"  autocomplete="off">
 		<div class="content-header">
 			<div class="container-fluid">
 				<div class="row mb-2">
@@ -43,7 +41,7 @@ templ ApptForm(clients []models.Client) {
 					<div class="form-group">
 						<label for={ idGen.Id("client_name") }>Client:</label>
 						<select name="clientId" id={ idGen.Id("client_name") } class="custom-select my-1 mr-sm-2">
-							<option selected>Choose...</option>
+							<option value="" selected>Choose...</option>
 							for _, e := range clients {
 
 								<option value={fmt.Sprintf("%d", e.ID)}>{e.Name}</option>
@@ -57,28 +55,24 @@ templ ApptForm(clients []models.Client) {
 				<div class="col-md-6">
 					<div class="form-group">
 						<label for={ idGen.Id("appt_date") }>Date:</label>
-						<div id={ idGen.Id("appt_date") } class="input-group date" data-target-input="nearest">
-							<input type="text" name="appt_date" class="form-control datetimepicker-input" data-target={ idGen.IdRef("appt_date") }/>
-							<div class="input-group-append" data-target={ idGen.IdRef("appt_date") } data-toggle="datetimepicker">
+							<div class="input-group-append">
+								@components.DatePicker("appt_date", idGen.Id("appt_date"))
 								<div class="input-group-text">
 									<i class="fa fa-calendar"></i>
 								</div>
 							</div>
-						</div>
 						<div class="invalid-feedback"></div>
 					</div>
 				</div>
 				<div class="col-md-6">
 					<div class="form-group">
 						<label for={ idGen.Id("appt_time") }>Appointment Time:</label>
-						<div id={ idGen.Id("appt_time") } class="input-group date" data-target-input="nearest">
-							<input type="text" name="appt_time" class="form-control datetimepicker-input" data-target={ idGen.Id("appt_time") }/>
-							<div class="input-group-append" data-target={ idGen.IdRef("appt_time") } data-toggle="datetimepicker">
+							<div class="input-group-append" >
+								@components.TimePicker("appt_time", idGen.Id("appt_time"))
 								<div class="input-group-text">
 									<i class="far fa-clock"></i>
 								</div>
 							</div>
-						</div>
 						<div class="invalid-feedback"></div>
 					</div>
 				</div>
@@ -98,6 +92,19 @@ templ ApptForm(clients []models.Client) {
 					</div>
 				</div>
 			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="form-group">
+						<label for={ idGen.Id("status") }>Status:</label>
+						<select name="status" id={ idGen.Id("status") } class="custom-select my-1 mr-sm-2">
+							<option value="" selected>Choose...</option>
+								<option value="SCHEDULED">Scheduled</option>
+								<option value="CLOSED">Closed</option>
+						</select>
+						<div class="invalid-feedback"></div>
+					</div>
+				</div>
+			</div>
 		</div>
 		<div class="card-footer">
 					<button type="button" class="btn btn-secondary mr-1" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
@@ -111,18 +118,11 @@ templ ApptForm(clients []models.Client) {
         SubmitBtnRef: idGen.IdRef("submit"),
         NoteRef: idGen.IdRef("appt_note")})
 
+	@components.Push("js") {
 	<script>
-    window.addEventListener('load', function() {
+	(function() {
         var serverData = JSON.parse($("#appt-server-data").text())
         console.log(serverData)
-        $(serverData.DateRef).datetimepicker({
-            format: 'L',
-        });
-
-        $(serverData.TimeRef).datetimepicker({
-            format: 'LT',
-        });
-
 		let editor;
 
 		ClassicEditor
@@ -141,6 +141,7 @@ templ ApptForm(clients []models.Client) {
 			$(serverData.NoteRef).val(editorData)
 
         });
-    })
+    })()
     </script>
+	}
 }
