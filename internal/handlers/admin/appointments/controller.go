@@ -65,7 +65,7 @@ func (thing ApptHandler) SaveNew(w http.ResponseWriter, r *http.Request) error {
 		note := r.FormValue("appt_note")
 		thing.apptRepo.CreateAppt(int32(cliId), t, apptStatus, note)
 		// templates.Layout(ApptForm(appts), "Appt Form").Render(r.Context(), w)
-		return nil
 
 	}
+	return nil
 }
