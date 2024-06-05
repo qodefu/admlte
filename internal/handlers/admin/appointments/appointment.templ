@@ -12,10 +12,10 @@ import "goth/internal/config"
 
 var idGen = utils.NewIdGen("appointments")
 type ApptValidations struct {
-	Name                 v.Validation
-	Email                v.Validation
-	Password             v.Validation
-	PasswordConfirmation v.Validation
+	Name                 v.FormInput
+	Email                v.FormInput
+	Password             v.FormInput
+	PasswordConfirmation v.FormInput
 }
 
 // templ modalHeader(edit bool) {

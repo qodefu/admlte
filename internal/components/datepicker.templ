@@ -37,7 +37,7 @@ type srvData struct {
 
 }
 
-templ DatePicker(v validator.Validation) {
+templ DatePicker(v validator.FormInput) {
 	<input 
            type="text" 
            name={v.Key} 
@@ -59,7 +59,7 @@ templ DatePicker(v validator.Validation) {
 
 }
 
-templ TimePicker(v validator.Validation) {
+templ TimePicker(v validator.FormInput) {
 	<input 
            type="text" 
            name={v.Key} 
