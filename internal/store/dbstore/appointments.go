@@ -18,13 +18,17 @@ func (thing ApptStore) ListAppts() []models.ListApptRow {
 	return ret
 }
 
-func (thing ApptStore) CreateAppt(id int32, apptTime time.Time, status, note string) (models.Appointment, error) {
+func (thing ApptStore) CreateAppt(id int64, apptTime time.Time, status, note string) (models.Appointment, error) {
 	return thing.appts.CreateAppt(context.Background(), models.CreateApptParams{
-		ClientID: pgtype.Int4{Int32: id, Valid: true},
+		ClientID: pgtype.Int8{Int64: id, Valid: true},
 		ApptTime: pgtype.Timestamp{Time: apptTime, Valid: true},
 		Status:   pgtype.Text{String: status, Valid: true},
 		Note:     pgtype.Text{String: note, Valid: true},
 	})
+}
+
+func (thing ApptStore) GetApptById(id int64) (models.GetAppointmentRow, error) {
+	return thing.appts.GetAppointment(context.Background(), id)
 }
 
 // NewUserStore initializes and returns a new instance of UserStore.

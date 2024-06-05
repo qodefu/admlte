@@ -1,7 +1,10 @@
 
 -- name: GetAppointment :one
-SELECT * FROM appointments 
-WHERE id = $1 LIMIT 1;
+SELECT c.name, a.*  
+FROM  appointments a
+JOIN clients c
+  ON a.client_id = c.id
+WHERE a.id = $1 LIMIT 1;
 
 -- name: GetAppointmentCount :one
 SELECT count(id) FROM appointments;

@@ -23,7 +23,7 @@ func NewApptStore() *ApptStore {
 		appts: []models.Appointment{
 			{
 				ID:       1,
-				ClientID: pgtype.Int4{Int32: 1},
+				ClientID: pgtype.Int8{Int64: 1},
 				ApptTime: pgtype.Timestamp{Time: time.Now()},
 				Status:   pgtype.Text{String: "good"},
 				Note:     pgtype.Text{String: "Nothing"},

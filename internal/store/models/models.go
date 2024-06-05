@@ -9,8 +9,8 @@ import (
 )
 
 type Appointment struct {
-	ID       int32
-	ClientID pgtype.Int4
+	ID       int64
+	ClientID pgtype.Int8
 	ApptTime pgtype.Timestamp
 	Status   pgtype.Text
 	Note     pgtype.Text
@@ -18,7 +18,7 @@ type Appointment struct {
 }
 
 type Client struct {
-	ID      int32
+	ID      int64
 	Name    string
 	Created pgtype.Timestamp
 }

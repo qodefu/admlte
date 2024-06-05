@@ -11,6 +11,7 @@ type serverData struct {
     TimeRef string 
     SubmitBtnRef string 
 	NoteRef string
+	NoteData string
 }
 templ ApptForm(clients []models.Client, avalid ApptFormValidation) {
 	<div class="card card-default">
@@ -91,9 +92,9 @@ templ ApptForm(clients []models.Client, avalid ApptFormValidation) {
 							type="text"
 							class="form-control"
 							name="appt_note"
-							value=""
+							value={avalid.Note.Value}
 							id={ idGen.Id("appt_note") }
-						></textarea>
+						>{avalid.Note.Value}</textarea>
 						<div class="invalid-feedback"></div>
 					</div>
 				</div>
@@ -126,7 +127,9 @@ templ ApptForm(clients []models.Client, avalid ApptFormValidation) {
         DateRef: idGen.IdRef("appt_date"), 
         TimeRef: idGen.IdRef("appt_time"),
         SubmitBtnRef: idGen.IdRef("submit"),
-        NoteRef: idGen.IdRef("appt_note")})
+        NoteRef: idGen.IdRef("appt_note"),
+        NoteData: avalid.Note.Value ,
+		})
 
 	@components.Push("js") {
 	<script>
@@ -140,6 +143,7 @@ templ ApptForm(clients []models.Client, avalid ApptFormValidation) {
 		.then( e => {
 			editor = e	
 			console.log(editor);
+			// editor.setData(serverData.NoteData)
 		})
 		.catch(error => {
 			console.error(error);
@@ -151,6 +155,15 @@ templ ApptForm(clients []models.Client, avalid ApptFormValidation) {
 			$(serverData.NoteRef).val(editorData)
 
         });
+
+		htmx.on("appointment-updated", (event) => {
+			msg = event.detail.value[0]
+			toastr.success(msg.message , msg.tags)
+		});
+		htmx.on("appointment-messed", (event) => {
+			msg = event.detail.value[0]
+			toastr.error(msg.message , msg.tags)
+		});
     })()
     </script>
 	}

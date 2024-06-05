@@ -1,5 +1,10 @@
 package config
 
+import (
+	"log/slog"
+	"strings"
+)
+
 type Admin struct {
 	Base      string
 	Dashboard Dash
@@ -11,9 +16,10 @@ type Dash struct {
 	Base string
 }
 type Appt struct {
-	Base    string
-	Create  string
-	SaveNew string
+	Base       string
+	Create     string
+	SaveNew    string
+	UpdateAppt string
 }
 
 type Users struct {
@@ -42,9 +48,10 @@ func Routes() route {
 				Base: "/admin/dashboard",
 			},
 			Appt: Appt{
-				Base:    "/admin/appointments",
-				Create:  "/admin/appointments/create",
-				SaveNew: "/admin/appointments/saveNew",
+				Base:       "/admin/appointments",
+				Create:     "/admin/appointments/create",
+				UpdateAppt: "/admin/appointments/{id}/edit",
+				SaveNew:    "/admin/appointments/saveNew",
 			},
 			Users: Users{
 				Base: "/admin/users",
@@ -61,4 +68,17 @@ func Routes() route {
 		},
 	}
 
+}
+
+func RouteTo(url string, urlParams ...string) string {
+	ret := url
+	if len(urlParams)%2 != 0 {
+		slog.Error("routing url param number mismatch", urlParams)
+	}
+
+	for i := 0; i < len(urlParams)/2; i += 1 {
+		ret = strings.Replace(ret, "{"+urlParams[2*i]+"}", urlParams[2*i+1], 1)
+	}
+
+	return ret
 }

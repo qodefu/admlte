@@ -31,7 +31,8 @@ type UserStore interface {
 
 type ApptStore interface {
 	ListAppts() []models.ListApptRow
-	CreateAppt(id int32, apptTime time.Time, status, note string) (models.Appointment, error)
+	CreateAppt(id int64, apptTime time.Time, status, note string) (models.Appointment, error)
+	GetApptById(id int64) (models.GetAppointmentRow, error)
 }
 
 type ClientStore interface {

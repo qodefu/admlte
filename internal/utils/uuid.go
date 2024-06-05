@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log/slog"
+	"time"
 )
 
 type IdGen struct {
@@ -46,4 +47,12 @@ func unique(length int) string {
 		return ""
 	}
 	return hex.EncodeToString(b)
+}
+
+func DateFormat(t time.Time) string {
+	return t.Format("01/02/2006")
+}
+
+func TimeFormat(t time.Time) string {
+	return t.Format("03:04:05 PM")
 }

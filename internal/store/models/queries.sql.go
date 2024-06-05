@@ -21,7 +21,7 @@ RETURNING id, client_id, appt_time, status, note, created
 `
 
 type CreateApptParams struct {
-	ClientID pgtype.Int4
+	ClientID pgtype.Int8
 	ApptTime pgtype.Timestamp
 	Status   pgtype.Text
 	Note     pgtype.Text
@@ -95,7 +95,7 @@ DELETE FROM appointments
 WHERE id = $1
 `
 
-func (q *Queries) DeleteAppt(ctx context.Context, id int32) error {
+func (q *Queries) DeleteAppt(ctx context.Context, id int64) error {
 	_, err := q.db.Exec(ctx, deleteAppt, id)
 	return err
 }
@@ -105,7 +105,7 @@ DELETE FROM clients
 WHERE id = $1
 `
 
-func (q *Queries) DeleteClient(ctx context.Context, id int32) error {
+func (q *Queries) DeleteClient(ctx context.Context, id int64) error {
 	_, err := q.db.Exec(ctx, deleteClient, id)
 	return err
 }
@@ -121,14 +121,28 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 }
 
 const getAppointment = `-- name: GetAppointment :one
-SELECT id, client_id, appt_time, status, note, created FROM appointments 
-WHERE id = $1 LIMIT 1
+SELECT c.name, a.id, a.client_id, a.appt_time, a.status, a.note, a.created  
+FROM  appointments a
+JOIN clients c
+  ON a.client_id = c.id
+WHERE a.id = $1 LIMIT 1
 `
 
-func (q *Queries) GetAppointment(ctx context.Context, id int32) (Appointment, error) {
+type GetAppointmentRow struct {
+	Name     string
+	ID       int64
+	ClientID pgtype.Int8
+	ApptTime pgtype.Timestamp
+	Status   pgtype.Text
+	Note     pgtype.Text
+	Created  pgtype.Timestamp
+}
+
+func (q *Queries) GetAppointment(ctx context.Context, id int64) (GetAppointmentRow, error) {
 	row := q.db.QueryRow(ctx, getAppointment, id)
-	var i Appointment
+	var i GetAppointmentRow
 	err := row.Scan(
+		&i.Name,
 		&i.ID,
 		&i.ClientID,
 		&i.ApptTime,
@@ -155,7 +169,7 @@ SELECT id, name, created FROM clients
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetClient(ctx context.Context, id int32) (Client, error) {
+func (q *Queries) GetClient(ctx context.Context, id int64) (Client, error) {
 	row := q.db.QueryRow(ctx, getClient, id)
 	var i Client
 	err := row.Scan(&i.ID, &i.Name, &i.Created)
@@ -239,8 +253,8 @@ ORDER BY a.id
 
 type ListApptRow struct {
 	Name     string
-	ID       int32
-	ClientID pgtype.Int4
+	ID       int64
+	ClientID pgtype.Int8
 	ApptTime pgtype.Timestamp
 	Status   pgtype.Text
 	Note     pgtype.Text
@@ -346,8 +360,8 @@ WHERE id = $1
 `
 
 type UpdateApptParams struct {
-	ID       int32
-	ClientID pgtype.Int4
+	ID       int64
+	ClientID pgtype.Int8
 	ApptTime pgtype.Timestamp
 	Status   pgtype.Text
 	Note     pgtype.Text
@@ -371,7 +385,7 @@ WHERE id = $1
 `
 
 type UpdateClientParams struct {
-	ID   int32
+	ID   int64
 	Name string
 }
 

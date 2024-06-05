@@ -7,6 +7,7 @@ import "strconv"
 import "goth/internal/utils"
 import "goth/internal/store/models"
 import "goth/internal/config"
+// import "goth/internal/middleware"
 
 
 var idGen = utils.NewIdGen("appointments")
@@ -239,11 +240,17 @@ templ ApptTable(paginator store.Pagination[models.ListApptRow]) {
 				<tr>
 					<th scope="row">{ fmt.Sprintf("%d", i+1) }</th>
 					<td>{appt.Name}</td>
-					<td>{ appt.ApptTime.Time.Format("2006/01/02") }</td>
-					<td>{ appt.ApptTime.Time.Format("03:04:05") }</td>
-					<td>{ appt.Status.String }</td>
+					<td>{ utils.DateFormat(appt.ApptTime.Time)}</td>
+					<td>{ utils.TimeFormat(appt.ApptTime.Time)}</td>
+					<td><span class={"badge", apptBadge(appt)}>{appt.Status.String}</span></td>
+					// <td>if appt.Status.String == "SCHEDULED" {
+					// 		<span class="badge badge-primary">SCHEDULED</span>	
+					// 	} else if appt.Status.String == "CLOSED" {
+					// 		<span class="badge badge-success">CLOSED</span>
+					// 	}
+					// </td>
 					<td>
-						<a href="#" >
+						<a href={templ.SafeURL(config.RouteTo(config.Routes().Admin.Appt.UpdateAppt, "id", strconv.Itoa(int(appt.ID))))} >
 							<i class="fa fa-edit mr-2"></i>
 						</a>
 						<a href="#" >

@@ -113,6 +113,7 @@ func main() {
 			})
 			r.Get(cfgRoutes.Admin.Appt.Create, handlers.Func(apptsHandler.CreateForm))
 			r.Post(cfgRoutes.Admin.Appt.SaveNew, handlers.Func(apptsHandler.SaveNew))
+			r.Get(cfgRoutes.Admin.Appt.UpdateAppt, handlers.Func(apptsHandler.UpdateAppt))
 		})
 
 		// Dashboard

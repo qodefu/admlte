@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS users(
 DROP TABLE IF EXISTS appointments;
 --@block
 CREATE TABLE IF NOT EXISTS appointments(
-	id        SERIAL PRIMARY KEY, 
-	client_id   int,
+	id        BIGSERIAL PRIMARY KEY, 
+	client_id   bigint,
 	appt_time   timestamp,
 	status     text,
 	note      text,
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS appointments(
 DROP TABLE IF EXISTS clients;
 --@block
 CREATE TABLE IF NOT EXISTS clients(
-  id   SERIAL PRIMARY KEY,
+  id   BIGSERIAL PRIMARY KEY,
   name text      NOT NULL,
   created timestamp DEFAULT NOW()
 
