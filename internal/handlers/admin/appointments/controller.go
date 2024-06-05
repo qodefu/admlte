@@ -22,11 +22,11 @@ func apptBadge(apptRow models.ListApptRow) string {
 }
 
 type ApptFormValidation struct {
-	ClientId validator.Validation
-	Date     validator.Validation
-	Time     validator.Validation
-	Note     validator.Validation
-	Status   validator.Validation
+	ClientId validator.FormInput
+	Date     validator.FormInput
+	Time     validator.FormInput
+	Note     validator.FormInput
+	Status   validator.FormInput
 }
 
 func newValidation(cliIdStr, apptDate, apptTime, note, status string) ApptFormValidation {

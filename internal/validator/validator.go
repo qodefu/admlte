@@ -14,7 +14,7 @@ type VResult struct {
 type Validator func(v string) VResult
 type Validators []Validator
 
-type Validation struct {
+type FormInput struct {
 	Key        string
 	Value      string
 	Validators Validators
@@ -22,19 +22,19 @@ type Validation struct {
 	idGen      *utils.IdGen
 }
 
-func (thing *Validation) Install(vtors ...Validator) {
+func (thing *FormInput) Install(vtors ...Validator) {
 	thing.Validators = append(vtors, emptyValidator)
 }
 
-func (thing Validation) UUIDRef() string {
+func (thing FormInput) UUIDRef() string {
 	return thing.idGen.IdRef(thing.Key)
 }
 
-func (thing Validation) UUID() string {
+func (thing FormInput) UUID() string {
 	return thing.idGen.Id(thing.Key)
 }
 
-func (thing Validation) ErrorClasses(classes ...string) []string {
+func (thing FormInput) ErrorClasses(classes ...string) []string {
 	if !thing.Result.Valid {
 		return classes
 	}
@@ -45,8 +45,8 @@ func emptyValidator(v string) VResult {
 	return VResult{true, ""}
 
 }
-func New(key, val string, idGen *utils.IdGen, vtors ...Validator) Validation {
-	return Validation{
+func New(key, val string, idGen *utils.IdGen, vtors ...Validator) FormInput {
+	return FormInput{
 		Key:        key,
 		Value:      val,
 		Validators: append(vtors, emptyValidator),
@@ -71,7 +71,7 @@ func ValidateFields[T any](obj *T) {
 	// fmt.Println(valPtr.Elem().NumField())
 	for i := 0; i < valPtr.Elem().NumField(); i++ {
 		f := valPtr.Elem().Field(i).Addr()
-		if f.Type().AssignableTo(reflect.TypeOf(&Validation{})) {
+		if f.Type().AssignableTo(reflect.TypeOf(&FormInput{})) {
 			reflectInvoke(f, "Validate")
 		}
 	}
@@ -84,9 +84,9 @@ func ValidationOk[T any](obj *T) bool {
 	// fmt.Println(valPtr.Elem().NumField())
 	for i := 0; i < valPtr.Elem().NumField(); i++ {
 		f := valPtr.Elem().Field(i).Addr()
-		if f.Type().AssignableTo(reflect.TypeOf(&Validation{})) {
+		if f.Type().AssignableTo(reflect.TypeOf(&FormInput{})) {
 			hasValidation = true
-			ret = ret && f.Interface().(*Validation).Result.Valid
+			ret = ret && f.Interface().(*FormInput).Result.Valid
 		}
 	}
 	return hasValidation && ret
@@ -104,7 +104,7 @@ func ValidationOk[T any](obj *T) bool {
 // 	return ok
 // }
 
-func (thing *Validation) Validate() {
+func (thing *FormInput) Validate() {
 	thing.Result = VResult{true, ""}
 	for _, f := range thing.Validators {
 		r := f(thing.Value)

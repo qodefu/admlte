@@ -17,11 +17,11 @@ type ListUsers struct {
 }
 
 type UserValidations struct {
-	Id                   v.Validation
-	Name                 v.Validation
-	Email                v.Validation
-	Password             v.Validation
-	PasswordConfirmation v.Validation
+	Id                   v.FormInput
+	Name                 v.FormInput
+	Email                v.FormInput
+	Password             v.FormInput
+	PasswordConfirmation v.FormInput
 }
 
 func newValidation(name, email, pwd, pwdConfirm string) UserValidations {
