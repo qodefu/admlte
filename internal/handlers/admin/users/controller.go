@@ -173,6 +173,6 @@ func (thing *ListUsers) HxListUsers(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	paginator := dbstore.NewUserPagination("/admin/users/hx/list", thing.userStore, pgNum)
+	paginator := dbstore.NewUserPagination(thing.userStore, pgNum)
 	UserTableMain(paginator).Render(r.Context(), w)
 }

@@ -14,7 +14,9 @@ SELECT c.name, a.*
 FROM  appointments a
 JOIN clients c
   ON a.client_id = c.id
-ORDER BY a.id;
+ORDER BY a.id ASC 
+OFFSET $2 LIMIT $1;
+;
 
 -- name: CreateAppt :one
 INSERT INTO appointments(

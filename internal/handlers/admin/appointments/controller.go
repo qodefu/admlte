@@ -1,14 +1,17 @@
 package appts
 
 import (
-	"encoding/json"
 	"fmt"
+	"goth/internal/config"
+	"goth/internal/middleware"
 	"goth/internal/store"
+	"goth/internal/store/dbstore"
 	"goth/internal/store/models"
 	"goth/internal/templates"
 	"goth/internal/utils"
 	"goth/internal/validator"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -61,19 +64,19 @@ func (thing ApptHandler) CreateForm(w http.ResponseWriter, r *http.Request) erro
 	return nil
 }
 
-func (thing ApptHandler) SaveNew(w http.ResponseWriter, r *http.Request) error {
+func (thing ApptHandler) SaveNew(req middleware.RequestScope) error {
 
 	av := newEmptyForm()
-	cliIdStr := r.FormValue(av.ClientId.Key)
+	cliIdStr := req.Request().FormValue(av.ClientId.Key)
 	var cliId int64
 	_, err := fmt.Sscan(cliIdStr, &cliId)
 	if err != nil {
 		return err
 	}
-	apptDate := r.FormValue(av.Date.Key)
-	apptTime := r.FormValue(av.Time.Key)
-	apptStatus := r.FormValue(av.Status.Key)
-	note := r.FormValue(av.Note.Key)
+	apptDate := req.Request().FormValue(av.Date.Key)
+	apptTime := req.Request().FormValue(av.Time.Key)
+	apptStatus := req.Request().FormValue(av.Status.Key)
+	note := req.Request().FormValue(av.Note.Key)
 
 	combineTime := apptDate + " " + apptTime
 
@@ -86,13 +89,13 @@ func (thing ApptHandler) SaveNew(w http.ResponseWriter, r *http.Request) error {
 
 	if !validator.ValidationOk(&av) {
 		clients := thing.cliRepo.ListClients()
-		ApptForm(clients, av).Render(r.Context(), w)
+		ApptForm(clients, av).Render(req.Context(), req.Response())
 		// return errors.New("validation failed")
 	} else {
 		t, _ := time.Parse("01/02/2006 3:04 PM", combineTime)
-		note := r.FormValue("appt_note")
+		note := req.Request().FormValue("appt_note")
 
-		apptIdStr := r.FormValue("id")
+		apptIdStr := req.Request().FormValue("id")
 		if len(apptIdStr) > 0 {
 			//save existing
 			var apptId int64
@@ -101,45 +104,25 @@ func (thing ApptHandler) SaveNew(w http.ResponseWriter, r *http.Request) error {
 				return err
 			}
 			thing.apptRepo.UpdateAppt(apptId, cliId, t, apptStatus, note)
-			w.Header().Set("HX-Trigger", trigger(DeclMsg{
+			req.HxTrigger(middleware.TriggerMsg{
 				Event:   "appointment-updated",
 				Message: "appointment changes saved",
 				Tags:    "success!",
-			}))
+			})
 		} else {
 			// create new appointment
 			thing.apptRepo.CreateAppt(cliId, t, apptStatus, note)
-			w.Header().Set("HX-Trigger", trigger(DeclMsg{
+			req.HxTrigger(middleware.TriggerMsg{
 				Event:   "appointment-created",
 				Message: "appointment created",
 				Tags:    "success!",
-			}))
+			})
 
 		}
 		// templates.Layout(ApptForm(appts), "Appt Form").Render(r.Context(), w)
 
 	}
 	return nil
-}
-
-type HXTrigger struct {
-	eventName string
-}
-
-type DeclMsg struct {
-	Event   string `json:"-"`
-	Message string `json:"message"`
-	Tags    string `json:"tags"`
-	Data    any    `json:"data,omitempty"`
-}
-
-func trigger(events ...DeclMsg) string {
-	var data = make(map[string][]DeclMsg)
-	for _, e := range events {
-		data[e.Event] = append([]DeclMsg{}, e)
-	}
-	bytes, _ := json.Marshal(data)
-	return string(bytes)
 }
 
 func (thing ApptHandler) UpdateAppt(w http.ResponseWriter, r *http.Request) error {
@@ -159,5 +142,63 @@ func (thing ApptHandler) UpdateAppt(w http.ResponseWriter, r *http.Request) erro
 	timeStr := utils.TimeFormat(row.ApptTime.Time)
 	av := newValidation(idStr, cliId, dateStr, timeStr, row.Note.String, row.Status.String)
 	templates.Layout(ApptForm(clients, av), "Edit Form").Render(r.Context(), w)
+	return nil
+}
+
+type result[T any] struct {
+	Val   T
+	Error error
+}
+
+func (thing result[T]) HasError() bool {
+	return thing.Error != nil
+}
+
+func parseInt64(str string) result[int64] {
+	var val int64
+	_, err := fmt.Sscan(str, &val)
+	return result[int64]{val, err}
+}
+
+func (thing ApptHandler) DeleteApptConfirm(req middleware.RequestScope) error {
+	apptIdStr := chi.URLParam(req.Request(), "id")
+	r := parseInt64(apptIdStr)
+	if r.HasError() {
+		return r.Error
+	}
+	req.HxTrigger(middleware.TriggerMsg{
+		Event: "show-delete-confirmation",
+		Data:  map[string]string{"deleteUrl": config.RouteTo(config.Routes().Admin.Appt.HX.DeleteAppt, "id", apptIdStr)},
+	})
+	return nil
+}
+
+func (thing ApptHandler) ListAppt(req middleware.RequestScope) error {
+	pageStr := req.QueryParam("page")
+	page, _ := strconv.Atoi(pageStr)
+	pgtor := dbstore.NewApptPagination(thing.apptRepo, page)
+	// req := middleware.ReqScope(r.Context())
+	// fmt.Printf("%p:\n", r)
+	// fmt.Println()
+	// fmt.Printf("%p\n", req.Request())
+	ApptTableMain(pgtor).Render(req.Context(), req.Response())
+	return nil
+}
+func (thing ApptHandler) DeleteAppt(req middleware.RequestScope) error {
+	apptIdStr := chi.URLParam(req.Request(), "id")
+	r := parseInt64(apptIdStr)
+	if r.HasError() {
+		return r.Error
+	}
+	err := thing.apptRepo.DeleteAppt(r.Val)
+	if err != nil {
+		return err
+	}
+	pgtor := dbstore.NewApptPagination(thing.apptRepo, 1)
+	req.HxTrigger(middleware.TriggerMsg{
+		Event:   "appointment-deleted",
+		Message: "Appointment Deleted Successfully!",
+	})
+	ApptContent(pgtor).Render(req.Context(), req.Response())
 	return nil
 }

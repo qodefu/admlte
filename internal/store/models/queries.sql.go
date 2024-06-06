@@ -248,8 +248,14 @@ SELECT c.name, a.id, a.client_id, a.appt_time, a.status, a.note, a.created
 FROM  appointments a
 JOIN clients c
   ON a.client_id = c.id
-ORDER BY a.id
+ORDER BY a.id ASC 
+OFFSET $2 LIMIT $1
 `
+
+type ListApptParams struct {
+	Limit  int32
+	Offset int32
+}
 
 type ListApptRow struct {
 	Name     string
@@ -261,8 +267,8 @@ type ListApptRow struct {
 	Created  pgtype.Timestamp
 }
 
-func (q *Queries) ListAppt(ctx context.Context) ([]ListApptRow, error) {
-	rows, err := q.db.Query(ctx, listAppt)
+func (q *Queries) ListAppt(ctx context.Context, arg ListApptParams) ([]ListApptRow, error) {
+	rows, err := q.db.Query(ctx, listAppt, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

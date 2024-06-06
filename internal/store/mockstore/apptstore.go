@@ -58,7 +58,7 @@ func (thing ApptPagination) PerPage() int {
 }
 
 func (thing ApptPagination) Items() []models.ListApptRow {
-	return thing.store.ListAppts()
+	return thing.store.ListAppts(0, 5)
 }
 
 func (thing ApptPagination) Total() int {

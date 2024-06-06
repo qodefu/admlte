@@ -20,6 +20,12 @@ type Appt struct {
 	Create     string
 	SaveNew    string
 	UpdateAppt string
+	HX         apptshx
+}
+type apptshx struct {
+	DeleteApptConfirm string
+	DeleteAppt        string
+	List              string
 }
 
 type Users struct {
@@ -52,6 +58,11 @@ func Routes() route {
 				Create:     "/admin/appointments/create",
 				UpdateAppt: "/admin/appointments/{id}/edit",
 				SaveNew:    "/admin/appointments/saveNew",
+				HX: apptshx{
+					DeleteApptConfirm: "/admin/appointments/hx/deleteApptConfirm/{id}",
+					DeleteAppt:        "/admin/appointments/hx/deleteAppt/{id}",
+					List:              "/admin/appointments/hx/list",
+				},
 			},
 			Users: Users{
 				Base: "/admin/users",

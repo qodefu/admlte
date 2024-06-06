@@ -4,6 +4,7 @@ import (
 	// Standard package for creating error objects.
 
 	"context"
+	"goth/internal/config"
 	"goth/internal/store" // Internal package where the User struct is defined.
 	"goth/internal/store/models"
 
@@ -83,8 +84,8 @@ type UserPagination struct {
 	store store.UserStore
 }
 
-func NewUserPagination(url string, repo store.UserStore, pg int) UserPagination {
-	super := store.MkAbsPgtor[models.User](5, pg, url)
+func NewUserPagination(repo store.UserStore, pg int) UserPagination {
+	super := store.MkAbsPgtor[models.User](5, pg, config.Routes().Admin.Users.HX.List)
 	ret := UserPagination{
 		super,
 		repo,

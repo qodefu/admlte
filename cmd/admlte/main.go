@@ -42,6 +42,21 @@ func TokenFromCookie(r *http.Request) string {
 	return cookie.Value
 }
 
+type hfunc func(req m.RequestScope) error
+
+func wrapH(handler hfunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		err := handler(m.ReqScope(r.Context()))
+		if err != nil {
+			slog.Error("handler error", err)
+			w.WriteHeader(500)
+			w.Write([]byte("internal error"))
+		}
+
+	}
+}
+
 func main() {
 	// Initialize structured JSON logging.
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
@@ -90,7 +105,7 @@ func main() {
 		r.Group(func(r chi.Router) {
 			listUsersHandler := users.NewListUsersHandler(userStore)
 			r.Get(cfgRoutes.Admin.Users.Base, func(w http.ResponseWriter, r *http.Request) {
-				paginator := dbstore.NewUserPagination(cfgRoutes.Admin.Users.HX.List, userStore, 1)
+				paginator := dbstore.NewUserPagination(userStore, 1)
 				templates.Layout(users.UserContent(paginator), "Smart 1").Render(r.Context(), w)
 			})
 			r.Get(cfgRoutes.Admin.Users.HX.AddUserModal, listUsersHandler.HxAddUserModal)
@@ -108,12 +123,15 @@ func main() {
 
 			r.Get(cfgRoutes.Admin.Appt.Base, func(w http.ResponseWriter, r *http.Request) {
 
-				pgtor := dbstore.NewApptPagination("", queries, 1)
+				pgtor := dbstore.NewApptPagination(apptStore, 1)
 				templates.Layout(appts.ApptContent(pgtor), "Appointment").Render(r.Context(), w)
 			})
 			r.Get(cfgRoutes.Admin.Appt.Create, handlers.Func(apptsHandler.CreateForm))
-			r.Post(cfgRoutes.Admin.Appt.SaveNew, handlers.Func(apptsHandler.SaveNew))
+			r.Post(cfgRoutes.Admin.Appt.SaveNew, wrapH(apptsHandler.SaveNew))
 			r.Get(cfgRoutes.Admin.Appt.UpdateAppt, handlers.Func(apptsHandler.UpdateAppt))
+			r.Get(cfgRoutes.Admin.Appt.HX.List, wrapH(apptsHandler.ListAppt))
+			r.Get(cfgRoutes.Admin.Appt.HX.DeleteApptConfirm, wrapH(apptsHandler.DeleteApptConfirm))
+			r.Delete(cfgRoutes.Admin.Appt.HX.DeleteAppt, wrapH(apptsHandler.DeleteAppt))
 		})
 
 		// Dashboard

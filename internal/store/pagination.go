@@ -32,6 +32,10 @@ func MkAbsPgtor[T any](limit, curpage int, url string) AbstractPagination[T] {
 	}
 }
 
+func (thing AbstractPagination[T]) Offset() int {
+	return (thing.CurPage - 1) * thing.ItemsPerPage
+}
+
 func (thing AbstractPagination[T]) PageUrl(page int) string {
 	return fmt.Sprintf("%s?page=%d", thing.BaseUrl, page)
 }

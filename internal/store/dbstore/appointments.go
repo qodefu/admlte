@@ -2,6 +2,7 @@ package dbstore
 
 import (
 	"context"
+	"goth/internal/config"
 	"goth/internal/store"
 	"goth/internal/store/models"
 	"time"
@@ -13,8 +14,11 @@ type ApptStore struct {
 	appts *models.Queries // Slice of User structs to store user data.
 }
 
-func (thing ApptStore) ListAppts() []models.ListApptRow {
-	ret, _ := thing.appts.ListAppt(context.Background())
+func (thing ApptStore) ListAppts(offset, limit int) []models.ListApptRow {
+	ret, _ := thing.appts.ListAppt(context.Background(), models.ListApptParams{
+		Limit:  int32(limit),
+		Offset: int32(offset),
+	})
 	return ret
 }
 
@@ -41,6 +45,14 @@ func (thing ApptStore) GetApptById(id int64) (models.GetAppointmentRow, error) {
 	return thing.appts.GetAppointment(context.Background(), id)
 }
 
+func (thing ApptStore) DeleteAppt(id int64) error {
+	return thing.appts.DeleteAppt(context.Background(), id)
+}
+
+func (thing ApptStore) GetApptCount() (int64, error) {
+	return thing.appts.GetAppointmentCount(context.Background())
+}
+
 // NewUserStore initializes and returns a new instance of UserStore.
 // It pre-populates the store with a default user for demonstration or testing purposes.
 func NewApptStore(queries *models.Queries) *ApptStore {
@@ -51,11 +63,11 @@ func NewApptStore(queries *models.Queries) *ApptStore {
 
 type ApptPagination struct {
 	store.AbstractPagination[models.ListApptRow]
-	q *models.Queries
+	queries store.ApptStore
 }
 
-func NewApptPagination(url string, queries *models.Queries, pg int) store.Pagination[models.ListApptRow] {
-	super := store.MkAbsPgtor[models.ListApptRow](5, pg, url)
+func NewApptPagination(queries store.ApptStore, pg int) store.Pagination[models.ListApptRow] {
+	super := store.MkAbsPgtor[models.ListApptRow](5, pg, config.Routes().Admin.Appt.HX.List)
 	ret := ApptPagination{
 		super,
 		queries,
@@ -65,11 +77,11 @@ func NewApptPagination(url string, queries *models.Queries, pg int) store.Pagina
 }
 
 func (thing ApptPagination) Items() []models.ListApptRow {
-	ret, _ := thing.q.ListAppt(context.Background())
+	ret := thing.queries.ListAppts(thing.Offset(), thing.ItemsPerPage)
 	return ret
 }
 
 func (thing ApptPagination) Total() int {
-	ret, _ := thing.q.GetAppointmentCount(context.Background())
+	ret, _ := thing.queries.GetApptCount()
 	return int(ret)
 }

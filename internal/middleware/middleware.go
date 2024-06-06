@@ -66,13 +66,18 @@ func TextHTMLMiddleware(next http.Handler) http.Handler {
 
 type RKEY int
 
-const (
-	REQ_SCOPE RKEY = iota
-)
+type req_scope struct {
+}
 
 func UtilMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctxt := context.WithValue(r.Context(), REQ_SCOPE, NewRequestScope(r))
-		next.ServeHTTP(w, r.WithContext(ctxt))
+		rs := NewRequestScope(r, w)
+		ctxt := context.WithValue(r.Context(), req_scope{}, &rs)
+		r2 := r.WithContext(ctxt)
+		rs.req = r2
+		// rs2 := ctxt.Value(req_scope{}).(*RequestScope)
+		// fmt.Printf("rs: %p, rs2: %p\n", rs.req, rs2.req)
+		// rs.req = newR
+		next.ServeHTTP(w, r2)
 	})
 }
