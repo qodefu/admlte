@@ -27,6 +27,16 @@ func (thing ApptStore) CreateAppt(id int64, apptTime time.Time, status, note str
 	})
 }
 
+func (thing ApptStore) UpdateAppt(id int64, clientId int64, apptTime time.Time, status string, note string) error {
+	return thing.appts.UpdateAppt(context.Background(), models.UpdateApptParams{
+		ID:       id,
+		ClientID: pgtype.Int8{Int64: clientId, Valid: true},
+		ApptTime: pgtype.Timestamp{Time: apptTime, Valid: true},
+		Status:   pgtype.Text{String: status, Valid: true},
+		Note:     pgtype.Text{String: note, Valid: true},
+	})
+}
+
 func (thing ApptStore) GetApptById(id int64) (models.GetAppointmentRow, error) {
 	return thing.appts.GetAppointment(context.Background(), id)
 }

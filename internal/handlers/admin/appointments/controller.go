@@ -22,6 +22,7 @@ func apptBadge(apptRow models.ListApptRow) string {
 }
 
 type ApptFormValidation struct {
+	Id       validator.FormInput
 	ClientId validator.FormInput
 	Date     validator.FormInput
 	Time     validator.FormInput
@@ -29,13 +30,18 @@ type ApptFormValidation struct {
 	Status   validator.FormInput
 }
 
-func newValidation(cliIdStr, apptDate, apptTime, note, status string) ApptFormValidation {
+func newEmptyForm() ApptFormValidation {
+	return newValidation("", "", "", "", "", "")
+}
+
+func newValidation(idStr, cliIdStr, apptDate, apptTime, note, status string) ApptFormValidation {
 	return ApptFormValidation{
+		Id:       validator.New("id", idStr, &idGen),
 		ClientId: validator.New("clientId", cliIdStr, &idGen, validator.NotEmpty("Client")),
 		Date:     validator.New("appt_date", apptDate, &idGen, validator.NotEmpty("Appointment Date")),
 		Time:     validator.New("appt_time", apptTime, &idGen, validator.NotEmpty("Appointment Time")),
 		Note:     validator.New("note", note, &idGen),
-		Status:   validator.New("status", status, &idGen, validator.NotEmpty("Status")),
+		Status:   validator.New("appt_status", status, &idGen, validator.NotEmpty("Status")),
 	}
 }
 
@@ -50,26 +56,32 @@ func NewApptsHandler(apptRepo store.ApptStore, cliRepo store.ClientStore) *ApptH
 
 func (thing ApptHandler) CreateForm(w http.ResponseWriter, r *http.Request) error {
 	clients := thing.cliRepo.ListClients()
-	av := newValidation("", "", "", "", "")
+	av := newEmptyForm()
 	templates.Layout(ApptForm(clients, av), "Appt Form").Render(r.Context(), w)
 	return nil
 }
 
 func (thing ApptHandler) SaveNew(w http.ResponseWriter, r *http.Request) error {
 
-	cliIdStr := r.FormValue("clientId")
+	av := newEmptyForm()
+	cliIdStr := r.FormValue(av.ClientId.Key)
 	var cliId int64
 	_, err := fmt.Sscan(cliIdStr, &cliId)
 	if err != nil {
 		return err
 	}
-	apptDate := r.FormValue("appt_date")
-	apptTime := r.FormValue("appt_time")
-	apptStatus := r.FormValue("appt_status")
-	note := r.FormValue("note")
+	apptDate := r.FormValue(av.Date.Key)
+	apptTime := r.FormValue(av.Time.Key)
+	apptStatus := r.FormValue(av.Status.Key)
+	note := r.FormValue(av.Note.Key)
 
-	av := newValidation(cliIdStr, apptDate, apptTime, note, apptStatus)
 	combineTime := apptDate + " " + apptTime
+
+	av.ClientId.Value = cliIdStr
+	av.Date.Value = apptDate
+	av.Time.Value = apptTime
+	av.Note.Value = note
+	av.Status.Value = apptStatus
 	validator.ValidateFields(&av)
 
 	if !validator.ValidationOk(&av) {
@@ -79,17 +91,31 @@ func (thing ApptHandler) SaveNew(w http.ResponseWriter, r *http.Request) error {
 	} else {
 		t, _ := time.Parse("01/02/2006 3:04 PM", combineTime)
 		note := r.FormValue("appt_note")
-		thing.apptRepo.CreateAppt(cliId, t, apptStatus, note)
-		w.Header().Set("HX-Trigger", trigger(DeclMsg{
-			Event:   "appointment-updated",
-			Message: "appointment saved",
-			Tags:    "success!",
-		},
-			DeclMsg{
-				Event:   "appointment-messed",
-				Message: "appointment messed",
-				Tags:    "error!",
+
+		apptIdStr := r.FormValue("id")
+		if len(apptIdStr) > 0 {
+			//save existing
+			var apptId int64
+			_, err := fmt.Sscan(apptIdStr, &apptId)
+			if err != nil {
+				return err
+			}
+			thing.apptRepo.UpdateAppt(apptId, cliId, t, apptStatus, note)
+			w.Header().Set("HX-Trigger", trigger(DeclMsg{
+				Event:   "appointment-updated",
+				Message: "appointment changes saved",
+				Tags:    "success!",
 			}))
+		} else {
+			// create new appointment
+			thing.apptRepo.CreateAppt(cliId, t, apptStatus, note)
+			w.Header().Set("HX-Trigger", trigger(DeclMsg{
+				Event:   "appointment-created",
+				Message: "appointment created",
+				Tags:    "success!",
+			}))
+
+		}
 		// templates.Layout(ApptForm(appts), "Appt Form").Render(r.Context(), w)
 
 	}
@@ -131,7 +157,7 @@ func (thing ApptHandler) UpdateAppt(w http.ResponseWriter, r *http.Request) erro
 	cliId := fmt.Sprint(row.ClientID.Int64)
 	dateStr := utils.DateFormat(row.ApptTime.Time)
 	timeStr := utils.TimeFormat(row.ApptTime.Time)
-	av := newValidation(cliId, dateStr, timeStr, row.Note.String, row.Status.String)
+	av := newValidation(idStr, cliId, dateStr, timeStr, row.Note.String, row.Status.String)
 	templates.Layout(ApptForm(clients, av), "Edit Form").Render(r.Context(), w)
 	return nil
 }

@@ -17,6 +17,7 @@ templ ApptForm(clients []models.Client, avalid ApptFormValidation) {
 	<div class="card card-default">
 
 		<form hx-post={config.Routes().Admin.Appt.SaveNew} hx-swap="outerHTML"  autocomplete="off">
+		<input type="hidden" name={avalid.Id.Key} value={avalid.Id.Value}/>
 		<div class="content-header">
 			<div class="container-fluid">
 				<div class="row mb-2">
@@ -160,9 +161,9 @@ templ ApptForm(clients []models.Client, avalid ApptFormValidation) {
 			msg = event.detail.value[0]
 			toastr.success(msg.message , msg.tags)
 		});
-		htmx.on("appointment-messed", (event) => {
+		htmx.on("appointment-created", (event) => {
 			msg = event.detail.value[0]
-			toastr.error(msg.message , msg.tags)
+			toastr.success(msg.message , msg.tags)
 		});
     })()
     </script>
