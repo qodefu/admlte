@@ -113,7 +113,7 @@ templ UserContent(paginator store.Pagination[models.User]) {
 				// </div>
 				<div class="row">
 					<div class="col-lg-12">
-						<div class="d-flex justify-content-end mb-2">
+						<div class="d-flex justify-content-between mb-2">
 							<button
 								type="button"
 								class="primary btn-primary"
@@ -122,6 +122,65 @@ templ UserContent(paginator store.Pagination[models.User]) {
 							>
 								<i class="fa fa-plus-circle mr-1"></i>Add New User
 							</button>
+							<div>
+								<input id="searchUserInput" type="text" class="form-control" placeholder="Search"  hx-on:keyup="userPage.handleKeyup(event)"/>
+							</div>
+							@components.Push("js") {
+								<script>
+								var userPage = (function(){
+    								function handleKeyup(event) {
+    								    // Check if the pressed key is Enter
+    								    console.log('Enter key pressed!', $("#searchUserInput").val());
+    								    let f = throttle(searchUser, 200);
+										f();
+
+    								    // if (event.key === 'Enter') {
+    								    //     console.log('Enter key pressed!', $("#searchUserInput").val());
+											
+    								    //     // Call your specific JavaScript function here
+    								    //     searchUser();
+    								    // }
+    								}
+									var lastTime = 0;
+									function throttle(func, timeFrame) {
+									//   console.log(lastTime);
+									  return function () {
+									      var now = Date.now();
+										//   console.log(now)
+									      if (now - lastTime >= timeFrame) {
+									          func();
+									          lastTime = now;
+											//   console.log("setting last time", lastTime)
+									      } else {
+											let delta = timeFrame - (now - lastTime);
+									    	  timer = setTimeout(() => {
+									    	    func();
+									    	  }, delta)
+											  lastTime = now + delta;
+
+											// console.log("bad")
+										  }
+									  };
+									}
+    								//JavaScript function
+    								function searchUser() {
+										let searchTxt = $("#searchUserInput").val();
+										timeout = setTimeout(function() {
+			 							 	htmx.ajax(
+											'GET',
+											`/admin/users/hx/list?page=1&name=${searchTxt}&email=${searchTxt}`, {
+											  target: '#userTableMain',
+											  swap:'outerHTML'
+											});
+            							}, 200);
+    								}
+									return {
+										searchUser: searchUser,
+										handleKeyup: handleKeyup,
+									}
+								})();
+								</script>
+							}
 						</div>
 						@UserTableMain(paginator)
 					</div>
@@ -248,6 +307,11 @@ templ UserTable(paginator store.Pagination[models.User]) {
 							<i class="fa fa-trash text-danger mr-2"></i>
 						</a>
 					</td>
+				</tr>
+			}
+			if len(paginator.Items()) < 1 {
+				<tr class="text-center">
+				<td colspan="5">No Results Found</td>
 				</tr>
 			}
 		</tbody>

@@ -105,7 +105,7 @@ func main() {
 		r.Group(func(r chi.Router) {
 			listUsersHandler := users.NewListUsersHandler(userStore)
 			r.Get(cfgRoutes.Admin.Users.Base, func(w http.ResponseWriter, r *http.Request) {
-				paginator := dbstore.NewUserPagination(userStore, 1)
+				paginator := dbstore.NewUserPagination("", "", userStore, 1)
 				templates.Layout(users.UserContent(paginator), "Smart 1").Render(r.Context(), w)
 			})
 			r.Get(cfgRoutes.Admin.Users.HX.AddUserModal, listUsersHandler.HxAddUserModal)
@@ -114,7 +114,7 @@ func main() {
 			r.Post(cfgRoutes.Admin.Users.HX.Create, listUsersHandler.HxCreateUser)
 			r.Post(cfgRoutes.Admin.Users.HX.Update, listUsersHandler.HxUpdateUser)
 			r.Delete(cfgRoutes.Admin.Users.HX.Delete, listUsersHandler.HxDeleteUser)
-			r.Get(cfgRoutes.Admin.Users.HX.List, listUsersHandler.HxListUsers)
+			r.Get(cfgRoutes.Admin.Users.HX.List, wrapH(listUsersHandler.HxListUsers))
 		})
 
 		// Appointments

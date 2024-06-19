@@ -321,17 +321,27 @@ func (q *Queries) ListClients(ctx context.Context) ([]Client, error) {
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, name, email, password, created FROM users 
+SELECT id, name, email, password, created 
+FROM users 
+WHERE name like '%' || $3::text || '%'
+  OR email like '%' || $4::text || '%'
 ORDER BY id ASC OFFSET $2 LIMIT $1
 `
 
 type ListUsersParams struct {
 	Limit  int32
 	Offset int32
+	Name   string
+	Email  string
 }
 
 func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error) {
-	rows, err := q.db.Query(ctx, listUsers, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listUsers,
+		arg.Limit,
+		arg.Offset,
+		arg.Name,
+		arg.Email,
+	)
 	if err != nil {
 		return nil, err
 	}

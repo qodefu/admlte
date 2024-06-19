@@ -9,7 +9,10 @@ SELECT * FROM users
 WHERE email = $1 LIMIT 1;
 
 -- name: ListUsers :many
-SELECT * FROM users 
+SELECT * 
+FROM users 
+WHERE name like '%' || @name::text || '%'
+  OR email like '%' || @email::text || '%'
 ORDER BY id ASC OFFSET $2 LIMIT $1;
 
 -- name: CreateUser :one

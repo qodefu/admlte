@@ -66,10 +66,12 @@ func (s UserStore) GetUserById(id int64) (models.User, error) {
 	return s.db.GetUser(context.Background(), id)
 }
 
-func (s *UserStore) ListUsers(offset, limit int) []models.User {
+func (s *UserStore) ListUsers(nameQ, emailQ string, offset, limit int) []models.User {
 	ret, _ := s.db.ListUsers(context.Background(), models.ListUsersParams{
 		Offset: int32(offset),
 		Limit:  int32(limit),
+		Name:   nameQ,
+		Email:  emailQ,
 	})
 	return ret
 }
@@ -81,21 +83,25 @@ func (s UserStore) GetUserCount() int64 {
 
 type UserPagination struct {
 	store.AbstractPagination[models.User]
-	store store.UserStore
+	store  store.UserStore
+	nameQ  string
+	emailQ string
 }
 
-func NewUserPagination(repo store.UserStore, pg int) UserPagination {
+func NewUserPagination(nameQ, emailQ string, repo store.UserStore, pg int) UserPagination {
 	super := store.MkAbsPgtor[models.User](5, pg, config.Routes().Admin.Users.HX.List)
 	ret := UserPagination{
 		super,
 		repo,
+		nameQ,
+		emailQ,
 	}
 	ret.Child = ret
 	return ret
 }
 
 func (thing UserPagination) Items() []models.User {
-	return thing.store.ListUsers((thing.CurPage-1)*thing.ItemsPerPage, thing.ItemsPerPage)
+	return thing.store.ListUsers(thing.nameQ, thing.emailQ, (thing.CurPage-1)*thing.ItemsPerPage, thing.ItemsPerPage)
 }
 
 func (thing UserPagination) Total() int {

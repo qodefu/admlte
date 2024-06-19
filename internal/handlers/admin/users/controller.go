@@ -1,6 +1,7 @@
 package users
 
 import (
+	"goth/internal/middleware"
 	"goth/internal/store"
 	"goth/internal/store/dbstore"
 	"goth/internal/utils"
@@ -167,12 +168,16 @@ func (thing *ListUsers) HxDeleteUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (thing *ListUsers) HxListUsers(w http.ResponseWriter, r *http.Request) {
-	page := r.URL.Query().Get("page")
+func (thing *ListUsers) HxListUsers(req middleware.RequestScope) error {
+	page := req.QueryParam("page")
+
 	pgNum, err := strconv.Atoi(page)
 	if err != nil {
-		panic(err)
+		return err
 	}
-	paginator := dbstore.NewUserPagination(thing.userStore, pgNum)
-	UserTableMain(paginator).Render(r.Context(), w)
+	nameQ := req.QueryParam("name")
+	emailQ := req.QueryParam("email")
+	paginator := dbstore.NewUserPagination(nameQ, emailQ, thing.userStore, pgNum)
+	UserTableMain(paginator).Render(req.Context(), req.Response())
+	return nil
 }

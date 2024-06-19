@@ -25,7 +25,7 @@ type UserStore interface {
 	GetUserById(id int64) (models.User, error)
 	DeleteUser(id int64) error
 	UpdateUser(name, email, password string, id int64) error
-	ListUsers(offset, limit int) []models.User
+	ListUsers(name, email string, offset, limit int) []models.User
 	GetUserCount() int64
 }
 
