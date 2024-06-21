@@ -105,5 +105,5 @@ func (thing UserPagination) Items() []models.User {
 }
 
 func (thing UserPagination) Total() int {
-	return int(thing.store.GetUserCount())
+	return len(thing.Items())
 }

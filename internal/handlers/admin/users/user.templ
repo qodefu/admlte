@@ -49,8 +49,7 @@ templ UserModalContent(uv UserValidations, edit bool) {
 	</div>
 }
 
-templ UserTableMain(paginator store.Pagination[models.User]) {
-	<div class="card" id="userTableMain">
+templ UserTableMainContent(paginator store.Pagination[models.User]) {
 		<div class="card-body">
 			@UserTable(paginator)
 		</div>
@@ -61,15 +60,15 @@ templ UserTableMain(paginator store.Pagination[models.User]) {
 			<nav aria-label="...">
 				<ul class="pagination">
 					<li class="page-item ">
-						<a class="page-link" hx-swap="outerHTML" hx-target="#userTableMain" hx-get={ paginator.PreviousPageUrl() } tabindex="-1" aria-disabled="true">{ "<" }</a>
+						<a class="page-link" hx-swap="innerHTML" hx-target="#userTableMain" hx-get={ paginator.PreviousPageUrl() } tabindex="-1" aria-disabled="true">{ "<" }</a>
 					</li>
 					for _,i := range paginator.Pages() {
 						if paginator.CurrentPage() == i {
 							<li class="page-item active" aria-current="page">
-								<a class="page-link" hx-swap="outerHTML" hx-target="#userTableMain" hx-get={ paginator.PageUrl(i) }>{ strconv.Itoa(i) } <span class="sr-only">(current)</span></a>
+								<a class="page-link" hx-swap="innerHTML" hx-target="#userTableMain" hx-get={ paginator.PageUrl(i) }>{ strconv.Itoa(i) } <span class="sr-only">(current)</span></a>
 							</li>
 						} else {
-							<li class="page-item "><a class="page-link" hx-swap="outerHTML" hx-target="#userTableMain" hx-get={ paginator.PageUrl(i) }>{ strconv.Itoa(i) }</a></li>
+							<li class="page-item "><a class="page-link" hx-swap="innerHTML" hx-target="#userTableMain" hx-get={ paginator.PageUrl(i) }>{ strconv.Itoa(i) }</a></li>
 						}
 					}
 					// <li class="page-item "><a class="page-link" href="#">1</a></li>
@@ -78,11 +77,16 @@ templ UserTableMain(paginator store.Pagination[models.User]) {
 					// </li>
 					// <li class="page-item"><a class="page-link" href="#">3</a></li>
 					<li class="page-item ">
-						<a class="page-link" hx-swap="outerHTML" hx-target="#userTableMain" hx-get={ paginator.NextPageUrl() } aria-disabled="true">{ ">" }</a>
+						<a class="page-link" hx-swap="innerHTML" hx-target="#userTableMain" hx-get={ paginator.NextPageUrl() } aria-disabled="true">{ ">" }</a>
 					</li>
 				</ul>
 			</nav>
 		</div>
+}
+
+templ UserTableMain(paginator store.Pagination[models.User]) {
+	<div class="card" id="userTableMain">
+		@UserTableMainContent(paginator)
 	</div>
 }
 
@@ -131,8 +135,9 @@ templ UserContent(paginator store.Pagination[models.User]) {
     								function handleKeyup(event) {
     								    // Check if the pressed key is Enter
     								    console.log('Enter key pressed!', $("#searchUserInput").val());
-    								    let f = throttle(searchUser, 200);
-										f();
+										searchUser()
+    								    // let f = throttle(searchUser, 200);
+										// f();
 
     								    // if (event.key === 'Enter') {
     								    //     console.log('Enter key pressed!', $("#searchUserInput").val());
@@ -170,7 +175,7 @@ templ UserContent(paginator store.Pagination[models.User]) {
 											'GET',
 											`/admin/users/hx/list?page=1&name=${searchTxt}&email=${searchTxt}`, {
 											  target: '#userTableMain',
-											  swap:'outerHTML'
+											  swap:'innerHTML'
 											});
             							}, 200);
     								}
@@ -203,7 +208,7 @@ templ UserContent(paginator store.Pagination[models.User]) {
 				'GET',
 				'/admin/users/hx/list?page=1', {
 				  target: '#userTableMain',
-				  swap:'outerHTML'
+				  swap:'innerHTML'
 				});
 			})
 		</script>
@@ -311,7 +316,11 @@ templ UserTable(paginator store.Pagination[models.User]) {
 			}
 			if len(paginator.Items()) < 1 {
 				<tr class="text-center">
-				<td colspan="5">No Results Found</td>
+				<td colspan="5">
+					<img src="https://cdn-icons-png.flaticon.com/128/6134/6134116.png"/>
+					<p class="mt-2">No Results Found</p>
+				</td>
+
 				</tr>
 			}
 		</tbody>

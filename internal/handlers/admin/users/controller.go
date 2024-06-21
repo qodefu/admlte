@@ -178,6 +178,6 @@ func (thing *ListUsers) HxListUsers(req middleware.RequestScope) error {
 	nameQ := req.QueryParam("name")
 	emailQ := req.QueryParam("email")
 	paginator := dbstore.NewUserPagination(nameQ, emailQ, thing.userStore, pgNum)
-	UserTableMain(paginator).Render(req.Context(), req.Response())
+	UserTableMainContent(paginator).Render(req.Context(), req.Response())
 	return nil
 }
