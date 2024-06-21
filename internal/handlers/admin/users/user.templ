@@ -1,6 +1,7 @@
 package  users 
 
 import m "goth/internal/middleware"
+
 // import v "goth/internal/validator"
 //  import  "goth/internal/validator"
 import "goth/internal/components"
@@ -9,7 +10,6 @@ import "fmt"
 import "goth/internal/store"
 import "strconv"
 import "goth/internal/store/models"
-
 
 templ modalHeader(edit bool) {
 	<div class="modal-header">
@@ -50,38 +50,38 @@ templ UserModalContent(uv UserValidations, edit bool) {
 }
 
 templ UserTableMainContent(paginator store.Pagination[models.User]) {
-		<div class="card-body">
-			@UserTable(paginator)
-		</div>
-		<div class="card-body d-flex justify-content-end">
-			Total: { strconv.Itoa(paginator.Total()) }
-		</div>
-		<div class="card-footer d-flex justify-content-end">
-			<nav aria-label="...">
-				<ul class="pagination">
-					<li class="page-item ">
-						<a class="page-link" hx-swap="innerHTML" hx-target="#userTableMain" hx-get={ paginator.PreviousPageUrl() } tabindex="-1" aria-disabled="true">{ "<" }</a>
-					</li>
-					for _,i := range paginator.Pages() {
-						if paginator.CurrentPage() == i {
-							<li class="page-item active" aria-current="page">
-								<a class="page-link" hx-swap="innerHTML" hx-target="#userTableMain" hx-get={ paginator.PageUrl(i) }>{ strconv.Itoa(i) } <span class="sr-only">(current)</span></a>
-							</li>
-						} else {
-							<li class="page-item "><a class="page-link" hx-swap="innerHTML" hx-target="#userTableMain" hx-get={ paginator.PageUrl(i) }>{ strconv.Itoa(i) }</a></li>
-						}
+	<div class="card-body">
+		@UserTable(paginator)
+	</div>
+	<div class="card-body d-flex justify-content-end">
+		Total: { strconv.Itoa(paginator.Total()) }
+	</div>
+	<div class="card-footer d-flex justify-content-end">
+		<nav aria-label="...">
+			<ul class="pagination">
+				<li class="page-item ">
+					<a class="page-link" hx-swap="innerHTML" hx-target="#userTableMain" hx-get={ paginator.PreviousPageUrl() } tabindex="-1" aria-disabled="true">{ "<" }</a>
+				</li>
+				for _,i := range paginator.Pages() {
+					if paginator.CurrentPage() == i {
+						<li class="page-item active" aria-current="page">
+							<a class="page-link" hx-swap="innerHTML" hx-target="#userTableMain" hx-get={ paginator.PageUrl(i) }>{ strconv.Itoa(i) } <span class="sr-only">(current)</span></a>
+						</li>
+					} else {
+						<li class="page-item "><a class="page-link" hx-swap="innerHTML" hx-target="#userTableMain" hx-get={ paginator.PageUrl(i) }>{ strconv.Itoa(i) }</a></li>
 					}
-					// <li class="page-item "><a class="page-link" href="#">1</a></li>
-					// <li class="page-item active" aria-current="page">
-					// 	<a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>
-					// </li>
-					// <li class="page-item"><a class="page-link" href="#">3</a></li>
-					<li class="page-item ">
-						<a class="page-link" hx-swap="innerHTML" hx-target="#userTableMain" hx-get={ paginator.NextPageUrl() } aria-disabled="true">{ ">" }</a>
-					</li>
-				</ul>
-			</nav>
-		</div>
+				}
+				// <li class="page-item "><a class="page-link" href="#">1</a></li>
+				// <li class="page-item active" aria-current="page">
+				// 	<a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>
+				// </li>
+				// <li class="page-item"><a class="page-link" href="#">3</a></li>
+				<li class="page-item ">
+					<a class="page-link" hx-swap="innerHTML" hx-target="#userTableMain" hx-get={ paginator.NextPageUrl() } aria-disabled="true">{ ">" }</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
 }
 
 templ UserTableMain(paginator store.Pagination[models.User]) {
@@ -90,6 +90,10 @@ templ UserTableMain(paginator store.Pagination[models.User]) {
 	</div>
 }
 
+script doit() {
+userPage.handleKeyup(event)
+
+}
 templ UserContent(paginator store.Pagination[models.User]) {
 	<div>
 		<div class="content-header">
@@ -126,8 +130,14 @@ templ UserContent(paginator store.Pagination[models.User]) {
 							>
 								<i class="fa fa-plus-circle mr-1"></i>Add New User
 							</button>
-							<div>
-								<input id="searchUserInput" type="text" class="form-control" placeholder="Search"  hx-on:keyup="userPage.handleKeyup(event)"/>
+							<div class="d-flex justify-content-center align-items-center border bg-white pr-2">
+								@components.SearchInput("searchUserInput", doit())
+								// <input hx-trigger="click" hx-indicator="#spinner" id="searchUserInput" type="text" class="form-control border-0" placeholder="Search" hx-on:keyup="userPage.handleKeyup(event)"/>
+								// <div id="spinner" class="htmx-indicator">
+								// 	<div class="la-ball-clip-rotate la-dark la-sm">
+								// 		<div></div>
+								// 	</div>
+								// </div>
 							</div>
 							@components.Push("js") {
 								<script>
@@ -135,6 +145,7 @@ templ UserContent(paginator store.Pagination[models.User]) {
     								function handleKeyup(event) {
     								    // Check if the pressed key is Enter
     								    console.log('Enter key pressed!', $("#searchUserInput").val());
+										// htmx.addClass(htmx.find("#searchUserInput"), 'htmx-request')
 										searchUser()
     								    // let f = throttle(searchUser, 200);
 										// f();
@@ -174,6 +185,7 @@ templ UserContent(paginator store.Pagination[models.User]) {
 			 							 	htmx.ajax(
 											'GET',
 											`/admin/users/hx/list?page=1&name=${searchTxt}&email=${searchTxt}`, {
+											  source: '#searchUserInput',
 											  target: '#userTableMain',
 											  swap:'innerHTML'
 											});
@@ -217,12 +229,12 @@ templ UserContent(paginator store.Pagination[models.User]) {
 
 templ UserForm(uvs UserValidations, edit bool) {
 	<form hx-post={ m.If(edit, config.Routes().Admin.Users.HX.Update, config.Routes().Admin.Users.HX.Create) }>
-				<input
-					type="hidden"
-					name={ uvs.Id.Key }
-					value={ uvs.Id.Value }
-					id={ uvs.Id.Key + "_id" }
-				/>
+		<input
+			type="hidden"
+			name={ uvs.Id.Key }
+			value={ uvs.Id.Value }
+			id={ uvs.Id.Key + "_id" }
+		/>
 		<div class="modal-body">
 			<div class="form-group">
 				<label for={ uvs.Name.Key + "_id" }>Name </label>
@@ -298,7 +310,7 @@ templ UserTable(paginator store.Pagination[models.User]) {
 				<th scope="col">Options</th>
 			</tr>
 		</thead>
-		<tbody>
+		<tbody class="">
 			for i,user := range paginator.Items() {
 				<tr>
 					<th scope="row">{ fmt.Sprintf("%d", i+1) }</th>
@@ -316,11 +328,10 @@ templ UserTable(paginator store.Pagination[models.User]) {
 			}
 			if len(paginator.Items()) < 1 {
 				<tr class="text-center">
-				<td colspan="5">
-					<img src="https://cdn-icons-png.flaticon.com/128/6134/6134116.png"/>
-					<p class="mt-2">No Results Found</p>
-				</td>
-
+					<td colspan="5">
+						<img src="https://cdn-icons-png.flaticon.com/128/6134/6134116.png"/>
+						<p class="mt-2">No Results Found</p>
+					</td>
 				</tr>
 			}
 		</tbody>
