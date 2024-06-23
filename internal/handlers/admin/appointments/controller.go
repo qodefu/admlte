@@ -2,6 +2,7 @@ package appts
 
 import (
 	"fmt"
+	"goth/internal/components"
 	"goth/internal/config"
 	"goth/internal/middleware"
 	"goth/internal/store"
@@ -48,23 +49,56 @@ func newValidation(idStr, cliIdStr, apptDate, apptTime, note, status string) App
 	}
 }
 
-type ApptHandler struct {
+type ComponentEnum int
+
+const (
+	COMP_LIST_APPT = iota
+)
+
+type apptHandler struct {
 	apptRepo store.ApptStore
 	cliRepo  store.ClientStore
+	registry map[ComponentEnum]components.CreateComp
 }
 
-func NewApptsHandler(apptRepo store.ApptStore, cliRepo store.ClientStore) *ApptHandler {
-	return &ApptHandler{apptRepo: apptRepo, cliRepo: cliRepo}
+var handler *apptHandler
+
+func NewApptsHandler(apptRepo store.ApptStore, cliRepo store.ClientStore) *apptHandler {
+	if handler == nil {
+		handler = &apptHandler{
+			apptRepo: apptRepo,
+			cliRepo:  cliRepo,
+			registry: make(map[ComponentEnum]components.CreateComp)}
+	}
+	return handler
 }
 
-func (thing ApptHandler) CreateForm(w http.ResponseWriter, r *http.Request) error {
+func (thing apptHandler) Component(enum ComponentEnum) components.CreateComp {
+	return thing.registry[enum]
+}
+
+func (thing apptHandler) ListApptComp() (string, components.CreateComp) {
+	compId := idGen.Id("list_appt_comp")
+	ret := func(req middleware.RequestScope) components.RComp {
+		return ListApptComp{
+			compId:   compId,
+			Page:     1,
+			req:      req,
+			apptRepo: thing.apptRepo,
+		}
+	}
+	thing.registry[COMP_LIST_APPT] = ret
+	return compId, ret
+}
+
+func (thing apptHandler) CreateForm(w http.ResponseWriter, r *http.Request) error {
 	clients := thing.cliRepo.ListClients()
 	av := newEmptyForm()
 	templates.Layout(ApptForm(clients, av), "Appt Form").Render(r.Context(), w)
 	return nil
 }
 
-func (thing ApptHandler) SaveNew(req middleware.RequestScope) error {
+func (thing apptHandler) SaveNew(req middleware.RequestScope) error {
 
 	av := newEmptyForm()
 	cliIdStr := req.Request().FormValue(av.ClientId.Key)
@@ -125,7 +159,7 @@ func (thing ApptHandler) SaveNew(req middleware.RequestScope) error {
 	return nil
 }
 
-func (thing ApptHandler) UpdateAppt(w http.ResponseWriter, r *http.Request) error {
+func (thing apptHandler) UpdateAppt(w http.ResponseWriter, r *http.Request) error {
 	idStr := chi.URLParam(r, "id")
 	var apptId int64
 	_, err := fmt.Sscan(idStr, &apptId)
@@ -160,7 +194,7 @@ func parseInt64(str string) result[int64] {
 	return result[int64]{val, err}
 }
 
-func (thing ApptHandler) DeleteApptConfirm(req middleware.RequestScope) error {
+func (thing apptHandler) DeleteApptConfirm(req middleware.RequestScope) error {
 	apptIdStr := chi.URLParam(req.Request(), "id")
 	r := parseInt64(apptIdStr)
 	if r.HasError() {
@@ -173,7 +207,7 @@ func (thing ApptHandler) DeleteApptConfirm(req middleware.RequestScope) error {
 	return nil
 }
 
-func (thing ApptHandler) ListAppt(req middleware.RequestScope) error {
+func (thing apptHandler) ListAppt(req middleware.RequestScope) error {
 	pageStr := req.QueryParam("page")
 	page, _ := strconv.Atoi(pageStr)
 	pgtor := dbstore.NewApptPagination(thing.apptRepo, page)
@@ -184,7 +218,7 @@ func (thing ApptHandler) ListAppt(req middleware.RequestScope) error {
 	ApptTableMain(pgtor).Render(req.Context(), req.Response())
 	return nil
 }
-func (thing ApptHandler) DeleteAppt(req middleware.RequestScope) error {
+func (thing apptHandler) DeleteAppt(req middleware.RequestScope) error {
 	apptIdStr := chi.URLParam(req.Request(), "id")
 	r := parseInt64(apptIdStr)
 	if r.HasError() {
@@ -194,11 +228,14 @@ func (thing ApptHandler) DeleteAppt(req middleware.RequestScope) error {
 	if err != nil {
 		return err
 	}
-	pgtor := dbstore.NewApptPagination(thing.apptRepo, 1)
+	// pgtor := dbstore.NewApptPagination(thing.apptRepo, 1)
 	req.HxTrigger(middleware.TriggerMsg{
 		Event:   "appointment-deleted",
 		Message: "Appointment Deleted Successfully!",
 	})
-	ApptContent(pgtor).Render(req.Context(), req.Response())
+	rcomp := thing.Component(COMP_LIST_APPT)(req)
+	// rcomp := thing.ListComponent(req)
+	rcomp.Render()
+	// ApptContent(pgtor).Render(req.Context(), req.Response())
 	return nil
 }

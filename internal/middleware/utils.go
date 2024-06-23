@@ -50,6 +50,18 @@ func (thing RequestScope) Request() *http.Request {
 func (thing RequestScope) Response() http.ResponseWriter {
 	return thing.writer
 }
+
+func (thing RequestScope) IsComponentReq() bool {
+	if len(thing.QueryParam("rpcId")) > 0 {
+		return false
+	}
+	return true
+}
+
+func (thing RequestScope) ComponentId() string {
+	return thing.QueryParam("rpcId")
+}
+
 func (thing RequestScope) IsUrl(url string) bool {
 	return thing.req.RequestURI == url
 }

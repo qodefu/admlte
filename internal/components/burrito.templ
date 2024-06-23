@@ -1,0 +1,17 @@
+package components
+import "goth/internal/middleware"
+
+type RComp interface {
+    Id() string
+	Render() error
+	Content() templ.Component
+}
+type CreateComp func(req middleware.RequestScope) RComp
+type RegFunc func(id string) CreateComp 
+
+templ WrapRPC(comp RComp) {
+    <div rpc:id={comp.Id()}>
+        @comp.Content()
+    	@templ.JSONScript(comp.Id(), comp)
+    </div>
+}

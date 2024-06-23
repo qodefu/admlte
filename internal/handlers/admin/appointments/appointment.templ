@@ -19,43 +19,6 @@ type ApptValidations struct {
 	PasswordConfirmation v.FormInput
 }
 
-// templ modalHeader(edit bool) {
-// 	<div class="modal-header">
-// 		if edit {
-// 			<h5 class="modal-title" id="exampleModalLabel">Edit Appointment</h5>
-// 		} else {
-// 			<h5 class="modal-title" id="exampleModalLabel">Add New Appointment</h5>
-// 		}
-// 		<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-// 			<span aria-hidden="true">&times;</span>
-// 		</button>
-// 	</div>
-// }
-
-// templ DeleteModalContent(email string) {
-// 	<div class="modal-content" id="globalModalContent">
-// 		<div class="modal-header">
-// 			<h5 class="modal-title" id="exampleModalLabel">Delete Appt</h5>
-// 			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-// 				<span aria-hidden="true">&times;</span>
-// 			</button>
-// 		</div>
-// 		<div class="modal-body">
-// 			<h4>Are you sure you want to delte?</h4>
-// 		</div>
-// 		<div class="modal-footer">
-// 			<button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
-// 			<button type="submit" class="btn btn-danger" hx-delete={ fmt.Sprintf("/admin/appts/hx/deleteAppt/%s", email) }><i class="fa fa-trash mr-2"></i>Delete Appt</button>
-// 		</div>
-// 	</div>
-// }
-
-// templ ApptModalContent(uv ApptValidations, edit bool) {
-// 	<div class="modal-content" id="globalModalContent">
-// 		@modalHeader(edit)
-// 		@ApptForm(uv, edit)
-// 	</div>
-// }
 
 templ ApptTableMain(paginator store.Pagination[models.ListApptRow]) {
 	<div class="card" id="apptTableMain">
@@ -94,7 +57,7 @@ templ ApptTableMain(paginator store.Pagination[models.ListApptRow]) {
 	</div>
 }
 
-templ ApptContent(paginator store.Pagination[models.ListApptRow]) {
+templ ApptContent(comp ListApptComp ) {
 	<div id="apptMainContent">
 		<div class="content-header">
 			<div class="container-fluid">
@@ -131,7 +94,7 @@ templ ApptContent(paginator store.Pagination[models.ListApptRow]) {
 								</button>
 							</a>
 						</div>
-						@ApptTableMain(paginator)
+						@ApptTableMain(comp.paginator)
 					</div>
 					<!-- /.col-md-6 -->
 				</div>

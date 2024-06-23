@@ -18,7 +18,7 @@ var gens = make(map[string]IdGen)
 func (thing IdGen) Id(elem string) string {
 	key := thing.prefix + "-" + elem + "-"
 	if _, ok := thing.dict[key]; !ok {
-		thing.dict[key] = key + unique(3)
+		thing.dict[key] = key + unique(8)
 	}
 	return thing.dict[key]
 }

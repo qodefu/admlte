@@ -17,6 +17,7 @@ type Dash struct {
 }
 type Appt struct {
 	Base       string
+	Base2      string
 	Create     string
 	SaveNew    string
 	UpdateAppt string
@@ -55,6 +56,7 @@ func Routes() route {
 			},
 			Appt: Appt{
 				Base:       "/admin/appointments",
+				Base2:      "/admin/appointments2",
 				Create:     "/admin/appointments/create",
 				UpdateAppt: "/admin/appointments/{id}/edit",
 				SaveNew:    "/admin/appointments/saveNew",

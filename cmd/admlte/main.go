@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"goth/internal/auth/tokenauth" // Package for JWT token authentication logic.
+	"goth/internal/components"
+	"goth/internal/utils"
 	"log"
 
 	// Package for JWT token authentication logic.
@@ -57,6 +59,28 @@ func wrapH(handler hfunc) http.HandlerFunc {
 	}
 }
 
+// type CreateComponent func(req m.RequestScope) components.RComp
+
+var compRegistry = make(map[string]components.CreateComp)
+
+var idGen = utils.NewIdGen("ComponentsRegistry")
+
+func registerComponent(compName string, regFunc components.RegFunc) {
+	// var compId = idGen.Id(compName)
+	// var factory = regFunc(compId)
+	id, factory := regFunc()
+	compRegistry[id] = factory
+}
+
+func handleComponent(req m.RequestScope) error {
+	//get componentId
+	if req.IsComponentReq() {
+		return compRegistry[req.ComponentId()](req).Render()
+	}
+
+	return errors.New("not component request")
+}
+
 func main() {
 	// Initialize structured JSON logging.
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
@@ -101,6 +125,15 @@ func main() {
 
 		cfgRoutes := config.Routes()
 
+		r.Get("/rpc-dispatch", wrapH(func(req m.RequestScope) error {
+			return handleComponent(req)
+		}))
+		r.Delete("/rpc-dispatch", wrapH(func(req m.RequestScope) error {
+			return handleComponent(req)
+		}))
+		r.Post("/rpc-dispatch", wrapH(func(req m.RequestScope) error {
+			return handleComponent(req)
+		}))
 		// admin users
 		r.Group(func(r chi.Router) {
 			listUsersHandler := users.NewListUsersHandler(userStore)
@@ -120,11 +153,17 @@ func main() {
 		// Appointments
 		r.Group(func(r chi.Router) {
 			apptsHandler := appts.NewApptsHandler(apptStore, cliStore)
+			registerComponent("listuser", apptsHandler.ListApptComp)
 
+			r.Get(cfgRoutes.Admin.Appt.Base2, func(w http.ResponseWriter, r *http.Request) {
+				rcomp := apptsHandler.Component(appts.COMP_LIST_APPT)(m.ReqScope(r.Context()))
+				templates.Layout(components.WrapRPC(rcomp), "Appointment").Render(r.Context(), w)
+			})
 			r.Get(cfgRoutes.Admin.Appt.Base, func(w http.ResponseWriter, r *http.Request) {
 
-				pgtor := dbstore.NewApptPagination(apptStore, 1)
-				templates.Layout(appts.ApptContent(pgtor), "Appointment").Render(r.Context(), w)
+				// pgtor := dbstore.NewApptPagination(apptStore, 1)
+				rcomp := apptsHandler.Component(appts.COMP_LIST_APPT)(m.ReqScope(r.Context()))
+				templates.Layout(rcomp.Content(), "Appointment").Render(r.Context(), w)
 			})
 			r.Get(cfgRoutes.Admin.Appt.Create, handlers.Func(apptsHandler.CreateForm))
 			r.Post(cfgRoutes.Admin.Appt.SaveNew, wrapH(apptsHandler.SaveNew))
