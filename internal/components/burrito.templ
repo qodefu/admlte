@@ -9,6 +9,11 @@ type RComp interface {
 type CreateComp func(req middleware.RequestScope) RComp
 type RegFunc func(id string) CreateComp 
 
+type RegComp struct {
+	Id      string
+	Factory CreateComp
+}
+
 templ WrapRPC(comp RComp) {
     <div rpc:id={comp.Id()}>
         @comp.Content()

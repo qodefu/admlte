@@ -77,7 +77,7 @@ func (thing apptHandler) Component(enum ComponentEnum) components.CreateComp {
 	return thing.registry[enum]
 }
 
-func (thing apptHandler) ListApptComp() (string, components.CreateComp) {
+func (thing apptHandler) ListApptComp() components.RegComp {
 	compId := idGen.Id("list_appt_comp")
 	ret := func(req middleware.RequestScope) components.RComp {
 		return ListApptComp{
@@ -88,7 +88,7 @@ func (thing apptHandler) ListApptComp() (string, components.CreateComp) {
 		}
 	}
 	thing.registry[COMP_LIST_APPT] = ret
-	return compId, ret
+	return components.RegComp{compId, ret}
 }
 
 func (thing apptHandler) CreateForm(w http.ResponseWriter, r *http.Request) error {

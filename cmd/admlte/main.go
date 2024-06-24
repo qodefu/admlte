@@ -65,11 +65,10 @@ var compRegistry = make(map[string]components.CreateComp)
 
 var idGen = utils.NewIdGen("ComponentsRegistry")
 
-func registerComponent(compName string, regFunc components.RegFunc) {
+func registerComponent(regComp components.RegComp) {
 	// var compId = idGen.Id(compName)
 	// var factory = regFunc(compId)
-	id, factory := regFunc()
-	compRegistry[id] = factory
+	compRegistry[regComp.Id] = regComp.Factory
 }
 
 func handleComponent(req m.RequestScope) error {
@@ -153,7 +152,7 @@ func main() {
 		// Appointments
 		r.Group(func(r chi.Router) {
 			apptsHandler := appts.NewApptsHandler(apptStore, cliStore)
-			registerComponent("listuser", apptsHandler.ListApptComp)
+			registerComponent(apptsHandler.ListApptComp())
 
 			r.Get(cfgRoutes.Admin.Appt.Base2, func(w http.ResponseWriter, r *http.Request) {
 				rcomp := apptsHandler.Component(appts.COMP_LIST_APPT)(m.ReqScope(r.Context()))
