@@ -152,17 +152,17 @@ func main() {
 		// Appointments
 		r.Group(func(r chi.Router) {
 			apptsHandler := appts.NewApptsHandler(apptStore, cliStore)
-			registerComponent(apptsHandler.ListApptComp())
+			registerComponent(apptsHandler.ApptListComp())
 
-			r.Get(cfgRoutes.Admin.Appt.Base2, func(w http.ResponseWriter, r *http.Request) {
+			r.Get(cfgRoutes.Admin.Appt.Base, func(w http.ResponseWriter, r *http.Request) {
 				rcomp := apptsHandler.Component(appts.COMP_LIST_APPT)(m.ReqScope(r.Context()))
 				templates.Layout(components.WrapRPC(rcomp), "Appointment").Render(r.Context(), w)
 			})
-			r.Get(cfgRoutes.Admin.Appt.Base, func(w http.ResponseWriter, r *http.Request) {
 
-				// pgtor := dbstore.NewApptPagination(apptStore, 1)
-				rcomp := apptsHandler.Component(appts.COMP_LIST_APPT)(m.ReqScope(r.Context()))
-				templates.Layout(rcomp.Content(), "Appointment").Render(r.Context(), w)
+			r.Get(cfgRoutes.Admin.Appt.Base2, func(w http.ResponseWriter, r *http.Request) {
+
+				pgtor := dbstore.NewApptPagination(apptStore, 1)
+				templates.Layout(appts.ApptContent(pgtor), "Appointment").Render(r.Context(), w)
 			})
 			r.Get(cfgRoutes.Admin.Appt.Create, handlers.Func(apptsHandler.CreateForm))
 			r.Post(cfgRoutes.Admin.Appt.SaveNew, wrapH(apptsHandler.SaveNew))

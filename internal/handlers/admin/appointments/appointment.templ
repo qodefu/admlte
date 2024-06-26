@@ -57,7 +57,7 @@ templ ApptTableMain(paginator store.Pagination[models.ListApptRow]) {
 	</div>
 }
 
-templ ApptContent(comp ListApptComp ) {
+templ ApptContent(paginator store.Pagination[models.ListApptRow]) {
 	<div id="apptMainContent">
 		<div class="content-header">
 			<div class="container-fluid">
@@ -94,7 +94,7 @@ templ ApptContent(comp ListApptComp ) {
 								</button>
 							</a>
 						</div>
-						@ApptTableMain(comp.paginator)
+						@ApptTableMain(paginator)
 					</div>
 					<!-- /.col-md-6 -->
 				</div>

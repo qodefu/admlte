@@ -1,0 +1,161 @@
+package appts
+
+// import v "goth/internal/validator"
+import "fmt"
+import "goth/internal/store"
+import "strconv"
+import "goth/internal/utils"
+import "goth/internal/store/models"
+import "goth/internal/config"
+import "goth/internal/components"
+
+
+templ apptListContent(comp ListApptComp) {
+<div id="apptMainContent">
+	<div class="content-header">
+		<div class="container-fluid">
+			<div class="row mb-2">
+				<div class="col-sm-6">
+					<h1 class="m-0 text-dark">Appts</h1>
+				</div><!-- /.col -->
+				<div class="col-sm-6">
+					<ol class="breadcrumb float-sm-right">
+						<li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+						<li class="breadcrumb-item active">Appts</li>
+					</ol>
+				</div><!-- /.col -->
+			</div><!-- /.row -->
+		</div><!-- /.container-fluid -->
+	</div>
+	<div class="content">
+		<div class="container-fluid">
+			// <div class="alert alert-success alert-dismissible fade show" role="alert">
+				// <strong><i class="fa fa-check-circle mr-1"></i>Success!</strong>
+				// <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					// <span aria-hidden="true">&times;</span>
+					// </button>
+				// </div>
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="d-flex justify-content-end mb-2">
+						<a href={templ.SafeURL(config.Routes().Admin.Appt.Create)}>
+							<button type="button" class="primary btn-primary">
+								<i class="fa fa-plus-circle mr-1"></i>Add New Appointment
+							</button>
+						</a>
+					</div>
+					@apptTable(comp.paginator)
+				</div>
+				<!-- /.col-md-6 -->
+			</div>
+			<!-- /.row -->
+		</div><!-- /.container-fluid -->
+	</div>
+</div>
+
+@components.Push("js") {
+	<script>
+		(function() {
+			function getCompId(e) {
+				while (e.length > 0) {
+					if (e.attr("rpc:id")) {
+						return e.attr("rpc:id");
+					}
+					e = e.parent();
+				}
+				return "";
+
+			}
+			$("[rpc\\:get]").each((i,e) => { 
+				let call = $(e).attr('rpc:get');
+
+				console.log(call, getCompId($(e)));
+			})
+		})();
+
+	</script>
+
+}
+
+}
+
+
+templ apptTable(paginator store.Pagination[models.ListApptRow]) {
+
+<div class="card" id="apptTableMain">
+	<div class="card-body">
+
+		<table id="appt-table" class="table table-hover">
+			<thead>
+				<tr>
+					<th scope="col">#</th>
+					<th scope="col">Client Name</th>
+					<th scope="col">Date</th>
+					<th scope="col">Time</th>
+					<th scope="col">Status</th>
+					<th scope="col">Option</th>
+				</tr>
+			</thead>
+			<tbody>
+				for i,appt := range paginator.Items() {
+				<tr>
+					<th scope="row">{ fmt.Sprintf("%d", i+1) }</th>
+					<td>{appt.Name}</td>
+					<td>{ utils.DateFormat(appt.ApptTime.Time)}</td>
+					<td>{ utils.TimeFormat(appt.ApptTime.Time)}</td>
+					<td><span class={"badge", apptBadge(appt)}>{appt.Status.String}</span></td>
+					// <td>if appt.Status.String == "SCHEDULED" {
+						// <span class="badge badge-primary">SCHEDULED</span>
+						// } else if appt.Status.String == "CLOSED" {
+						// <span class="badge badge-success">CLOSED</span>
+						// }
+						// </td>
+					<td>
+						<a href={templ.SafeURL(config.RouteTo(config.Routes().Admin.Appt.UpdateAppt, "id" ,
+							strconv.Itoa(int(appt.ID))))}>
+							<i class="fa fa-edit mr-2"></i>
+						</a>
+						<a  rpc:get={"deleteConfirm(" + strconv.Itoa(int(appt.ID)) +")"}>
+							<i class="fa fa-trash text-danger mr-2"></i>
+						</a>
+					</td>
+				</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+	<div class="card-body d-flex justify-content-end">
+		Total: { strconv.Itoa(paginator.Total()) }
+	</div>
+	<div class="card-footer d-flex justify-content-end">
+		<nav aria-label="...">
+			<ul class="pagination">
+				<li class="page-item ">
+					<a class="page-link" hx-swap="outerHTML" hx-target="#apptTableMain" hx-get={
+						paginator.PreviousPageUrl() } tabindex="-1" aria-disabled="true">{ "<" }</a>
+				</li>
+				for _,i := range paginator.Pages() {
+				if paginator.CurrentPage() == i {
+				<li class="page-item active" aria-current="page">
+					<a class="page-link" hx-swap="outerHTML" hx-target="#apptTableMain" hx-get={ paginator.PageUrl(i)
+						}>{ strconv.Itoa(i) } <span class="sr-only">(current)</span></a>
+				</li>
+				} else {
+				<li class="page-item "><a class="page-link" hx-swap="outerHTML" hx-target="#apptTableMain" hx-get={
+						paginator.PageUrl(i) }>{ strconv.Itoa(i) }</a></li>
+				}
+				}
+				// <li class="page-item "><a class="page-link" href="#">1</a></li>
+				// <li class="page-item active" aria-current="page">
+					// <a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>
+					// </li>
+				// <li class="page-item"><a class="page-link" href="#">3</a></li>
+				<li class="page-item ">
+					<a class="page-link" hx-swap="outerHTML" hx-target="#apptTableMain" hx-get={ paginator.NextPageUrl()
+						} aria-disabled="true">{ ">" }</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
+</div>
+}
