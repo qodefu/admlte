@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/a-h/templ"
+	"github.com/go-chi/chi/v5"
 )
 
 type RequestScope struct {
@@ -52,14 +53,11 @@ func (thing RequestScope) Response() http.ResponseWriter {
 }
 
 func (thing RequestScope) IsComponentReq() bool {
-	if len(thing.QueryParam("rpcId")) > 0 {
-		return false
-	}
-	return true
+	return len(chi.URLParam(thing.req, "compId")) > 0
 }
 
 func (thing RequestScope) ComponentId() string {
-	return thing.QueryParam("rpcId")
+	return chi.URLParam(thing.req, "compId")
 }
 
 func (thing RequestScope) IsUrl(url string) bool {

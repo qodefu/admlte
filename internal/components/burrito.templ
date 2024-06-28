@@ -15,8 +15,8 @@ type RegComp struct {
 }
 
 templ WrapRPC(comp RComp) {
-    <div rpc:id={comp.Id()}>
+    <div rpc-id={comp.Id()}>
         @comp.Content()
-    	@templ.JSONScript(comp.Id(), comp)
+		@templ.JSONScript(comp.Id(), comp)
     </div>
 }

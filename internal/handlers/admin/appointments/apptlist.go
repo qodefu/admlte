@@ -1,7 +1,6 @@
 package appts
 
 import (
-	"fmt"
 	"goth/internal/middleware"
 	"goth/internal/store"
 	"goth/internal/store/dbstore"
@@ -19,12 +18,13 @@ type ListApptComp struct {
 	paginator store.Pagination[models.ListApptRow] `json:"-"`
 }
 
-func (thing ListApptComp) GetSimple() string {
-	return thing.SearchTxt
+func (thing *ListApptComp) DeleteConfirm(apptId int) {
+	println("called!!!!!")
+	thing.SearchTxt = "test delete confirm"
 }
 
-func (thing ListApptComp) GetWithArgs(i int, s string, b bool) string {
-	return fmt.Sprintf("member txt: %s, arg int: %d, arg txt:%s, arg bool: %v", thing.SearchTxt, i, s, b)
+func (thing ListApptComp) GetSimple() {
+	println("simple!!")
 }
 
 func (thing ListApptComp) Id() string {

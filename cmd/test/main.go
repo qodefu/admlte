@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"goth/internal/components"
 	appts "goth/internal/handlers/admin/appointments"
 	"reflect"
@@ -13,7 +14,10 @@ func reflectInvoke(addr reflect.Value, name string, args ...any) []reflect.Value
 	for i := range args {
 		inputs[i] = reflect.ValueOf(args[i])
 	}
-	m, _ := addr.Type().MethodByName(name)
+	t := reflect.TypeOf(addr.Interface())
+	// t := addr.Type()
+	m, _ := t.MethodByName(name)
+	fmt.Println(m)
 	// type coersion bc JSON parse force numeric to float64
 	if len(args) > 0 {
 		// println(len(args), m.Func.Type().NumIn())
@@ -26,14 +30,16 @@ func reflectInvoke(addr reflect.Value, name string, args ...any) []reflect.Value
 			}
 		}
 	}
-	// fmt.Printf("%v: %v", m, args)
+	fmt.Printf("%v: %v (%v)\n", m, addr, args)
+
 	return m.Func.Call(append([]reflect.Value{addr}, inputs...))
 	// obj.MethodByName(name).Call(inputs)
 }
 
-func invoke[T any](thing components.RComp, callStr string) T {
+// dispatch on interface pointer to struct pointer type
+func invoke[T any](thing *components.RComp, callStr string) T {
 
-	reflectThing := reflect.ValueOf(thing)
+	reflectThing := reflect.ValueOf(thing).Elem().Elem()
 	xs := strings.FieldsFunc(callStr, func(r rune) bool {
 		return r == '(' || r == ')' || r == ','
 	})
@@ -54,7 +60,7 @@ func invoke[T any](thing components.RComp, callStr string) T {
 }
 
 func main() {
-	var comp = appts.ListApptComp{
+	var comp components.RComp = &appts.ListApptComp{
 		Page:      8,
 		SearchTxt: "hello",
 	}
@@ -62,8 +68,10 @@ func main() {
 	// fmt.Println("call result: ", s)
 	// ret = reflectInvoke(compPtr, "Content")[0]
 	// s := `GetSearch(5, "hello")`
-	println(invoke[string](comp, "GetSimple"))
-	println(invoke[string](comp, `GetWithArgs(8,"world", true)`))
+	println(invoke[string](&comp, "Id"))
+	println(invoke[string](&comp, `DeleteConfirm(8)`))
+	fmt.Printf("%v\n", comp)
+	// reflect.ValueOf(&comp).Elem().Interface().(*appts.ListApptComp).DeleteConfirm(8)
 	// args := strings.FieldsFunc(s, func(r rune) bool {
 	// 	return r == '(' || r == ')' || r == ','
 	// })

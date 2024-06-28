@@ -58,18 +58,29 @@ templ apptListContent(comp ListApptComp) {
 		(function() {
 			function getCompId(e) {
 				while (e.length > 0) {
-					if (e.attr("rpc:id")) {
-						return e.attr("rpc:id");
+					if (e.attr("rpc-id")) {
+						return e.attr("rpc-id");
 					}
 					e = e.parent();
 				}
 				return "";
-
 			}
-			$("[rpc\\:get]").each((i,e) => { 
-				let call = $(e).attr('rpc:get');
+			$("[rpc-call]").each((i,e) => { 
+				let call = $(e).attr('rpc-call');
+				let compId = getCompId($(e));
+				let state = $(`#${compId}`).text()
+				let endPoint = encodeURI(`/rpc/${compId}/${call}`)
+				// let obj = JSON.parse(state)
+				// obj.Page = 9999
+				$(e).on("click", (e) => {
+					console.log(endPoint, state)
+					$.post(endPoint, {state : state, name : "John"}, (data)=> {
+						console.log(data);
 
-				console.log(call, getCompId($(e)));
+					})
+
+				})
+				console.log(endPoint, JSON.parse(state) );
 			})
 		})();
 
@@ -115,7 +126,7 @@ templ apptTable(paginator store.Pagination[models.ListApptRow]) {
 							strconv.Itoa(int(appt.ID))))}>
 							<i class="fa fa-edit mr-2"></i>
 						</a>
-						<a  rpc:get={"deleteConfirm(" + strconv.Itoa(int(appt.ID)) +")"}>
+						<a  rpc-call={"DeleteConfirm(" + strconv.Itoa(int(appt.ID)) +")"}>
 							<i class="fa fa-trash text-danger mr-2"></i>
 						</a>
 					</td>

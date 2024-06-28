@@ -18,7 +18,7 @@ var gens = make(map[string]IdGen)
 func (thing IdGen) Id(elem string) string {
 	key := thing.prefix + "-" + elem + "-"
 	if _, ok := thing.dict[key]; !ok {
-		thing.dict[key] = key + unique(8)
+		thing.dict[key] = key + Unique(8)
 	}
 	return thing.dict[key]
 }
@@ -39,7 +39,7 @@ func NewIdGen(module string) IdGen {
 	return gens[module]
 }
 
-func unique(length int) string {
+func Unique(length int) string {
 	b := make([]byte, length)
 	_, err := rand.Read(b)
 	if err != nil {

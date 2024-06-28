@@ -3,12 +3,15 @@ package main
 // Import necessary packages for routing, context management, error handling, logging, HTTP server functionality, etc.
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"goth/internal/auth/tokenauth" // Package for JWT token authentication logic.
 	"goth/internal/components"
 	"goth/internal/utils"
 	"log"
+	"reflect"
+	"strings"
 
 	// Package for JWT token authentication logic.
 	"goth/internal/config"
@@ -71,13 +74,54 @@ func registerComponent(regComp components.RegComp) {
 	compRegistry[regComp.Id] = regComp.Factory
 }
 
-func handleComponent(req m.RequestScope) error {
-	//get componentId
-	if req.IsComponentReq() {
-		return compRegistry[req.ComponentId()](req).Render()
+func reflectInvoke(addr reflect.Value, name string, args ...any) []reflect.Value {
+	inputs := make([]reflect.Value, len(args))
+	for i := range args {
+		inputs[i] = reflect.ValueOf(args[i])
+	}
+	t := reflect.TypeOf(addr.Interface())
+	// t := addr.Type()
+	m, _ := t.MethodByName(name)
+	fmt.Println(m)
+	// type coersion bc JSON parse force numeric to float64
+	if len(args) > 0 {
+		// println(len(args), m.Func.Type().NumIn())
+		for i := 1; i < m.Func.Type().NumIn(); i++ {
+			t1 := m.Func.Type().In(i).Name()
+			t2 := reflect.TypeOf(args[i-1]).Name()
+			if t1 != t2 && strings.Contains(t2, "float") {
+				//float converstion to in
+				inputs[i-1] = reflect.ValueOf(args[i-1]).Convert(reflect.TypeOf(0))
+			}
+		}
+	}
+	fmt.Printf("%v: %v (%v)\n", m, addr, args)
+
+	return m.Func.Call(append([]reflect.Value{addr}, inputs...))
+	// obj.MethodByName(name).Call(inputs)
+}
+
+// dispatch on interface pointer to struct pointer type
+func invoke(thing *components.RComp, callStr string) {
+
+	reflectThing := reflect.ValueOf(thing).Elem().Elem()
+	xs := strings.FieldsFunc(callStr, func(r rune) bool {
+		return r == '(' || r == ')' || r == ','
+	})
+	funcName := xs[0]
+	xs = xs[1:]
+	var args = make([]any, len(xs))
+	for i, x := range xs {
+		json.Unmarshal([]byte(x), &args[i])
+		// switch args[i].(type) {
+		// //support int only
+		// case float64:
+		// 	args[i], _ = strconv.Atoi(x)
+		// }
 	}
 
-	return errors.New("not component request")
+	reflectInvoke(reflectThing, funcName, args...)
+	// return ret[0].Interface().(T)
 }
 
 func main() {
@@ -124,14 +168,22 @@ func main() {
 
 		cfgRoutes := config.Routes()
 
-		r.Get("/rpc-dispatch", wrapH(func(req m.RequestScope) error {
-			return handleComponent(req)
-		}))
-		r.Delete("/rpc-dispatch", wrapH(func(req m.RequestScope) error {
-			return handleComponent(req)
-		}))
-		r.Post("/rpc-dispatch", wrapH(func(req m.RequestScope) error {
-			return handleComponent(req)
+		r.Post("/rpc/{compId}/{call}", wrapH(func(req m.RequestScope) error {
+			compId := chi.URLParam(req.Request(), "compId")
+			call := chi.URLParam(req.Request(), "call")
+			if len(compId) > 0 {
+				state := req.Request().FormValue("state")
+				fmt.Println(req.ComponentId())
+				var comp = compRegistry[req.ComponentId()](req)
+				json.Unmarshal([]byte(state), &comp)
+				println(state)
+				// fmt.Printf("%v\n", comp)
+				invoke(&comp, call)
+				fmt.Printf("%v\n", comp)
+				return comp.Render()
+			}
+
+			return errors.New("not component request")
 		}))
 		// admin users
 		r.Group(func(r chi.Router) {

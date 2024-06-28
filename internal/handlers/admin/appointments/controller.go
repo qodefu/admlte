@@ -78,9 +78,9 @@ func (thing apptHandler) Component(enum ComponentEnum) components.CreateComp {
 }
 
 func (thing apptHandler) ApptListComp() components.RegComp {
-	compId := idGen.Id("")
+	compId := utils.Unique(15)
 	ret := func(req middleware.RequestScope) components.RComp {
-		return ListApptComp{
+		return &ListApptComp{
 			compId:   compId,
 			Page:     1,
 			req:      req,
