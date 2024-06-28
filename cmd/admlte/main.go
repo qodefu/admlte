@@ -180,7 +180,9 @@ func main() {
 				// fmt.Printf("%v\n", comp)
 				invoke(&comp, call)
 				fmt.Printf("%v\n", comp)
-				return comp.Render()
+
+				renderer := components.WrapRPC2(comp)
+				return renderer.Render(req.Context(), req.Response())
 			}
 
 			return errors.New("not component request")

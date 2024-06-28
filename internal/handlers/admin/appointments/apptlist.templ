@@ -77,6 +77,8 @@ templ apptListContent(comp ListApptComp) {
 					$.post(endPoint, {state : state, name : "John"}, (data)=> {
 						console.log(data);
 
+						$(`div[rpc-id='${compId}']`)[0].innerHTML = data
+
 					})
 
 				})

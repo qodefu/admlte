@@ -20,3 +20,8 @@ templ WrapRPC(comp RComp) {
 		@templ.JSONScript(comp.Id(), comp)
     </div>
 }
+
+templ WrapRPC2(comp RComp) {
+    @comp.Content()
+	@templ.JSONScript(comp.Id(), comp)
+}
